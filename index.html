@@ -15,44 +15,57 @@
 
     header {
       text-align: center;
-      padding: 35px 15px;
+      padding: 45px 20px;
       background: #000;
     }
 
     h1 {
       margin: 0;
-      font-size: 30px;
+      font-size: 32px;
     }
 
-    p {
+    header p {
       color: #aaa;
+      margin-top: 10px;
     }
 
     .stories {
-      padding: 20px;
       max-width: 700px;
       margin: auto;
+      padding: 25px 20px;
     }
 
     .story {
       background: #1d1d1d;
-      border-radius: 15px;
-      padding: 20px;
-      margin-bottom: 15px;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 18px;
     }
 
     .story h2 {
       margin-top: 0;
     }
 
-    .story a {
+    .story p {
+      color: #aaa;
+      line-height: 1.6;
+    }
+
+    .read {
       display: inline-block;
       margin-top: 10px;
-      padding: 10px 18px;
+      padding: 11px 20px;
       background: white;
       color: black;
       text-decoration: none;
       border-radius: 10px;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #666;
     }
   </style>
 </head>
@@ -64,15 +77,25 @@
     <p>Bu yerda mening hikoyalarim yashaydi.</p>
   </header>
 
-  <div class="stories">
+  <main class="stories">
 
     <div class="story">
       <h2>Birinchi hikoyam</h2>
-      <p>Tez orada...</p>
-      <a href="#">O‘qish</a>
+      <p>Bu hikoya tez orada shu yerda paydo bo‘ladi.</p>
+      <a class="read" href="#">O‘qish</a>
     </div>
 
-  </div>
+    <div class="story">
+      <h2>Yangi hikoya</h2>
+      <p>Bu yerga keyingi hikoyalarim joylanadi.</p>
+      <a class="read" href="#">O‘qish</a>
+    </div>
+
+  </main>
+
+  <footer>
+    © Munisam hikoyalari
+  </footer>
 
 </body>
 </html>
