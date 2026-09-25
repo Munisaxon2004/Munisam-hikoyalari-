@@ -4,54 +4,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Munisam hikoyalari</title>
+
 <style>
-body{margin:0;background:#111;color:white;font-family:Arial}
-header{text-align:center;padding:40px 20px;background:#000}
-h1{margin:0}
-.stories{max-width:700px;margin:auto;padding:25px 20px}
-.story{background:#1d1d1d;border-radius:16px;padding:22px;margin-bottom:18px}
-.story p{color:#aaa;line-height:1.6}
-button{padding:11px 20px;border:0;border-radius:10px;font-weight:bold;cursor:pointer}
-.reader{display:none;background:#181818;padding:25px;margin-top:20px;border-radius:16px;line-height:1.8}
+body{
+  margin:0;
+  background:#111;
+  color:white;
+  font-family:Arial,sans-serif;
+}
+
+header{
+  text-align:center;
+  padding:40px 20px;
+  background:#000;
+}
+
+h1{
+  margin:0;
+  font-size:32px;
+}
+
+header p{
+  color:#aaa;
+}
+
+.stories{
+  max-width:700px;
+  margin:auto;
+  padding:25px 20px;
+}
+
+.story{
+  background:#1d1d1d;
+  border-radius:16px;
+  padding:22px;
+  margin-bottom:18px;
+}
+
+.story h2{
+  margin-top:0;
+}
+
+.story p{
+  color:#ddd;
+  line-height:1.8;
+}
+
+button{
+  padding:11px 20px;
+  border:0;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.reader{
+  display:none;
+  background:#181818;
+  padding:20px;
+  margin-top:20px;
+  border-radius:14px;
+  line-height:1.8;
+}
 </style>
 </head>
+
 <body>
 
 <header>
-<h1>Munisam hikoyalari</h1>
-<p> Taqdir bo‘lsa yana yo‘llar tutashadi, ko‘zlar to‘qnashadi. ❤️
-Iltimos, shu taqdir yozilmagan bo‘lsin. 🤝🙂.</p>
+  <h1>Munisam hikoyalari</h1>
+  <p>Bu yerda mening hikoyalarim yashaydi.</p>
 </header>
 
 <main class="stories">
 
-<div class="story">
-<h2>Birinchi hikoyam</h2>
-<p>Hikoyamning qisqa ta’rifi.</p>
-<button onclick="openStory()">O‘qish</button>
+  <div class="story">
+    <h2>Birinchi hikoyam</h2>
 
-<div id="reader" class="reader">
-<h2>Birinchi hikoyam</h2>
-<p>
-Bu yerga mening birinchi hikoyam joylashadi...
-</p>
-<button onclick="closeStory()">← Orqaga</button>
-</div>
-</div>
+    <p>
+      Taqdir bo‘lsa yana yo‘llar tutashadi, ko‘zlar to‘qnashadi. ❤️<br>
+      Iltimos, shu taqdir yozilmagan bo‘lsin. 🤝🙂
+    </p>
 
-<div class="story">
-<h2>Yangi hikoya</h2>
-<p>Tez orada...</p>
-</div>
+    <button onclick="openStory()">O‘qish</button>
+
+    <div id="reader" class="reader">
+      <h2>Birinchi hikoyam</h2>
+
+      <p>
+        Taqdir bo‘lsa yana yo‘llar tutashadi, ko‘zlar to‘qnashadi. ❤️<br>
+        Iltimos, shu taqdir yozilmagan bo‘lsin. 🤝🙂
+      </p>
+
+      <button onclick="closeStory()">← Orqaga</button>
+    </div>
+  </div>
+
+  <div class="story">
+    <h2>Yangi hikoya</h2>
+    <p>Tez orada...</p>
+  </div>
 
 </main>
 
 <script>
 function openStory(){
-document.getElementById("reader").style.display="block";
+  document.getElementById("reader").style.display="block";
 }
+
 function closeStory(){
-document.getElementById("reader").style.display="none";
+  document.getElementById("reader").style.display="none";
 }
 </script>
 
