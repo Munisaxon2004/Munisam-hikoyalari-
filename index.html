@@ -24,9 +24,21 @@ body{
   background-attachment:fixed;
 }
 
-header{text-align:center;padding:35px 15px 20px}
-h1{margin:0;font-size:34px;text-shadow:0 2px 8px #000}
-.subtitle{margin-top:8px;opacity:.9}
+header{
+  text-align:center;
+  padding:35px 15px 20px
+}
+
+h1{
+  margin:0;
+  font-size:34px;
+  text-shadow:0 2px 8px #000
+}
+
+.subtitle{
+  margin-top:8px;
+  opacity:.9
+}
 
 nav{
   display:flex;
@@ -46,9 +58,14 @@ button{
   color:#222;
 }
 
-button:hover{opacity:.85}
+button:hover{
+  opacity:.85
+}
 
-.container{width:min(1000px,94%);margin:auto}
+.container{
+  width:min(1000px,94%);
+  margin:auto
+}
 
 .card{
   background:rgba(0,0,0,.55);
@@ -82,24 +99,28 @@ textarea{
   border:1px solid rgba(255,255,255,.15);
 }
 
-.story h3{margin-top:0}
+.story h3{
+  margin-top:0
+}
 
 .small{
   font-size:13px;
-  opacity:.75;
+  opacity:.75
 }
 
-.hidden{display:none!important}
+.hidden{
+  display:none!important
+}
 
 .message{
   margin:10px 0;
-  font-weight:bold;
+  font-weight:bold
 }
 
 .quote{
   font-size:20px;
   line-height:1.5;
-  text-align:center;
+  text-align:center
 }
 
 .modal{
@@ -124,102 +145,204 @@ textarea{
 
 .reader-content{
   white-space:pre-wrap;
-  line-height:1.7;
+  line-height:1.7
 }
 
 .reader-media{
-  margin-top:20px;
+  margin-top:20px
 }
 
 .reader-media img{
   width:100%;
   max-height:600px;
   object-fit:contain;
-  border-radius:15px;
+  border-radius:15px
 }
 
 .reader-media video{
   width:100%;
   max-height:600px;
   border-radius:15px;
-  background:#000;
+  background:#000
+}
+
+.reader-media audio{
+  width:100%;
+  margin-top:10px
 }
 
 .lock{
   font-size:14px;
-  opacity:.8;
+  opacity:.8
 }
 
 .row{
   display:flex;
   gap:8px;
-  flex-wrap:wrap;
+  flex-wrap:wrap
 }
 
-.row button{flex:0 0 auto}
+.row button{
+  flex:0 0 auto
+}
 
 .media-box{
   margin-top:15px;
   padding:15px;
   border-radius:14px;
-  background:rgba(255,255,255,.08);
+  background:rgba(255,255,255,.08)
 }
 
 .media-box label{
   display:block;
   margin-bottom:5px;
-  font-weight:bold;
+  font-weight:bold
 }
 
 .file-info{
   font-size:13px;
   opacity:.8;
-  margin-top:4px;
+  margin-top:4px
+}
+
+.record-box{
+  margin-top:15px;
+  padding:15px;
+  border-radius:14px;
+  background:rgba(255,255,255,.08)
+}
+
+.record-status{
+  margin:8px 0;
+  font-weight:bold
+}
+
+/* Faqat video/audio/ovoz ochiladigan sahifa */
+
+.media-only-page{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:#090909;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  overflow:auto;
+}
+
+.media-only-box{
+  width:min(900px,100%);
+  text-align:center;
+}
+
+.media-only-title{
+  font-size:25px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.media-only-date{
+  font-size:14px;
+  opacity:.65;
+  margin-bottom:20px;
+}
+
+.media-only-box video{
+  width:100%;
+  max-height:75vh;
+  background:#000;
+  border-radius:15px;
+}
+
+.media-only-box audio{
+  width:100%;
+  margin-top:10px;
+}
+
+.media-only-error{
+  font-size:18px;
+  padding:30px;
+}
+
+.media-icon{
+  font-size:50px;
+  margin-bottom:15px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
+<header id="mainHeader">
   <h1>Munisam hikoyalari</h1>
+
   <div class="subtitle">
     Bu yerda mening hikoyalarim yashaydi. ❤️
   </div>
 </header>
 
-<nav>
-  <button onclick="showLogin()">Kirish</button>
-  <button onclick="showSignup()">Ro‘yxatdan o‘tish</button>
-  <button onclick="newStory()">+ Hikoya yozish</button>
-  <button onclick="logout()">Chiqish</button>
+<nav id="mainNav">
+
+  <button onclick="showLogin()">
+    Kirish
+  </button>
+
+  <button onclick="showSignup()">
+    Ro‘yxatdan o‘tish
+  </button>
+
+  <button onclick="newStory()">
+    + Hikoya yozish
+  </button>
+
+  <button onclick="logout()">
+    Chiqish
+  </button>
+
 </nav>
 
-<div class="container">
+<div class="container" id="mainContainer">
 
 <section class="card">
+
   <h2>Hisob</h2>
-  <div id="userInfo">Mehmon sifatida kirdingiz.</div>
+
+  <div id="userInfo">
+    Mehmon sifatida kirdingiz.
+  </div>
+
 </section>
 
+
 <section class="card">
+
   <h2>Hikoyalar</h2>
 
   <input
-    class="search"
     id="searchInput"
     placeholder="Hikoya qidirish..."
     oninput="renderStories()"
   >
 
-  <div id="storiesList">Yuklanmoqda...</div>
+  <div id="storiesList">
+    Yuklanmoqda...
+  </div>
+
 </section>
+
 
 <section class="card hidden" id="writerPanel">
 
-  <h2 id="writerTitle">Yangi hikoya</h2>
+  <h2 id="writerTitle">
+    Yangi hikoya
+  </h2>
 
-  <input id="storyTitle" placeholder="Hikoya nomi">
+  <input
+    id="storyTitle"
+    placeholder="Hikoya nomi"
+  >
 
   <textarea
     id="storyContent"
@@ -227,8 +350,14 @@ textarea{
   ></textarea>
 
   <label>
-    <input type="checkbox" id="isPublic">
+
+    <input
+      type="checkbox"
+      id="isPublic"
+    >
+
     Ommaga ochiq bo‘lsin
+
   </label>
 
   <br><br>
@@ -242,6 +371,7 @@ textarea{
   <div class="small">
     Parol qo‘ysangiz, hikoyani ochish uchun parol kerak bo‘ladi.
   </div>
+
 
   <div class="media-box">
 
@@ -258,6 +388,7 @@ textarea{
       Maksimal hajm: 10 MB
     </div>
 
+
     <br>
 
     <label>🎥 Video</label>
@@ -273,42 +404,152 @@ textarea{
       Maksimal hajm: 100 MB
     </div>
 
+
+    <br>
+
+    <label>🎵 Musiqa</label>
+
+    <input
+      id="storyAudio"
+      type="file"
+      accept="audio/*"
+      onchange="showFileName('storyAudio','audioInfo')"
+    >
+
+    <div id="audioInfo" class="file-info">
+      Maksimal hajm: 50 MB
+    </div>
+
   </div>
 
-  <div id="existingMedia" class="media-box hidden"></div>
+
+  <div class="record-box">
+
+    <label>
+      🎤 Ovozli xabar
+    </label>
+
+    <div class="small">
+      Telefoningiz mikrofonidan ovoz yozishingiz mumkin.
+    </div>
+
+    <br>
+
+    <div class="row">
+
+      <button
+        type="button"
+        onclick="startRecording()"
+        id="startRecordButton"
+      >
+        🎤 Yozishni boshlash
+      </button>
+
+      <button
+        type="button"
+        onclick="stopRecording()"
+        id="stopRecordButton"
+        class="hidden"
+      >
+        ⏹ To‘xtatish
+      </button>
+
+    </div>
+
+    <div
+      id="recordStatus"
+      class="record-status"
+    ></div>
+
+    <audio
+      id="recordPreview"
+      controls
+      class="hidden"
+    ></audio>
+
+  </div>
+
+
+  <div
+    id="existingMedia"
+    class="media-box hidden"
+  ></div>
+
 
   <br>
 
   <div class="row">
-    <button onclick="saveStory()">Saqlash</button>
-    <button onclick="cancelEdit()">Bekor qilish</button>
+
+    <button onclick="saveStory()">
+      Saqlash
+    </button>
+
+    <button onclick="cancelEdit()">
+      Bekor qilish
+    </button>
+
   </div>
 
-  <div id="saveMessage" class="message"></div>
+
+  <div
+    id="saveMessage"
+    class="message"
+  ></div>
 
 </section>
 
+
 <section class="card">
+
   <h2>Iqtibos</h2>
+
   <div class="quote">
+
     “Ba’zi odamlar ketmaydi,
     shunchaki hayotingda o‘rnini yo‘qotadi.”
+
   </div>
+
 </section>
 
 </div>
 
-<div id="authModal" class="modal hidden">
+
+<!-- LOGIN -->
+
+<div
+  id="authModal"
+  class="modal hidden"
+>
+
   <div class="modal-box">
 
-    <h2 id="authTitle">Kirish</h2>
+    <h2 id="authTitle">
+      Kirish
+    </h2>
 
-    <input id="authEmail" type="email" placeholder="Email">
-    <input id="authPassword" type="password" placeholder="Parol">
+    <input
+      id="authEmail"
+      type="email"
+      placeholder="Email"
+    >
+
+    <input
+      id="authPassword"
+      type="password"
+      placeholder="Parol"
+    >
 
     <div class="row">
-      <button onclick="submitAuth()">Davom etish</button>
-      <button onclick="closeAuth()">Yopish</button>
+
+      <button onclick="submitAuth()">
+        Davom etish
+      </button>
+
+      <button onclick="closeAuth()">
+        Yopish
+      </button>
+
     </div>
 
     <br>
@@ -323,49 +564,130 @@ textarea{
       Parolni unutdingizmi?
     </button>
 
-    <div id="authMessage" class="message"></div>
+    <div
+      id="authMessage"
+      class="message"
+    ></div>
 
   </div>
+
 </div>
 
-<div id="recoveryModal" class="modal hidden">
+
+<!-- PASSWORD RECOVERY -->
+
+<div
+  id="recoveryModal"
+  class="modal hidden"
+>
+
   <div class="modal-box">
 
-    <h2>🔐 Yangi parol</h2>
+    <h2>
+      🔐 Yangi parol
+    </h2>
 
-    <p>Yangi parolingizni kiriting.</p>
+    <p>
+      Yangi parolingizni kiriting.
+    </p>
 
-    <input id="newPassword" type="password" placeholder="Yangi parol">
-    <input id="newPassword2" type="password" placeholder="Yangi parolni qayta kiriting">
+    <input
+      id="newPassword"
+      type="password"
+      placeholder="Yangi parol"
+    >
+
+    <input
+      id="newPassword2"
+      type="password"
+      placeholder="Yangi parolni qayta kiriting"
+    >
 
     <button onclick="updatePassword()">
       Parolni saqlash
     </button>
 
-    <div id="recoveryMessage" class="message"></div>
+    <div
+      id="recoveryMessage"
+      class="message"
+    ></div>
 
   </div>
+
 </div>
 
-<div id="readerModal" class="modal hidden">
+
+<!-- STORY READER -->
+
+<div
+  id="readerModal"
+  class="modal hidden"
+>
+
   <div class="modal-box">
 
     <h2 id="readerTitle"></h2>
 
-    <div id="readerDate" class="small"></div>
+    <div
+      id="readerDate"
+      class="small"
+    ></div>
 
     <hr>
 
-    <div id="readerContent" class="reader-content"></div>
+    <div
+      id="readerContent"
+      class="reader-content"
+    ></div>
 
-    <div id="readerMedia" class="reader-media"></div>
+    <div
+      id="readerMedia"
+      class="reader-media"
+    ></div>
 
     <br>
 
-    <button onclick="closeReader()">Yopish</button>
+    <button onclick="closeReader()">
+      Yopish
+    </button>
 
   </div>
+
 </div>
+
+
+<!-- MEDIA ONLY PAGE -->
+
+<div
+  id="mediaOnlyPage"
+  class="media-only-page hidden"
+>
+
+  <div class="media-only-box">
+
+    <div
+      id="mediaOnlyIcon"
+      class="media-icon"
+    >
+      🎬
+    </div>
+
+    <div
+      id="mediaOnlyTitle"
+      class="media-only-title"
+    ></div>
+
+    <div
+      id="mediaOnlyDate"
+      class="media-only-date"
+    ></div>
+
+    <div id="mediaOnlyContent"></div>
+
+  </div>
+
+</div>
+
 
 <script>
 
@@ -387,23 +709,39 @@ const supabaseClient =
   );
 
 
-/* ADMIN — YANGI ID */
-
 const ADMIN_ID =
   "d83107c5-ac1a-49bf-a53d-7fe17f39f15b";
 
 
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+const MAX_IMAGE_SIZE =
+  10 * 1024 * 1024;
 
-const BUCKET = "story-media";
+const MAX_VIDEO_SIZE =
+  100 * 1024 * 1024;
+
+const MAX_AUDIO_SIZE =
+  50 * 1024 * 1024;
+
+
+const BUCKET =
+  "story-media";
+
 
 let currentUser = null;
 let authMode = "login";
+
 let editingId = null;
+
 let stories = [];
+
 let editingImagePath = null;
 let editingVideoPath = null;
+let editingAudioPath = null;
+let editingVoicePath = null;
+
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedVoiceBlob = null;
 
 
 const userInfo =
@@ -436,6 +774,9 @@ const storyImage =
 const storyVideo =
   document.getElementById("storyVideo");
 
+const storyAudio =
+  document.getElementById("storyAudio");
+
 const saveMessage =
   document.getElementById("saveMessage");
 
@@ -443,23 +784,60 @@ const existingMedia =
   document.getElementById("existingMedia");
 
 
+function isMediaRoute(){
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  return !!params.get("media");
+}
+
+
+/* =========================
+   AUTH
+========================= */
+
 function showLogin(){
+
   authMode = "login";
-  document.getElementById("authTitle").textContent = "Kirish";
-  document.getElementById("authMessage").textContent = "";
-  document.getElementById("authModal").classList.remove("hidden");
+
+  document.getElementById(
+    "authTitle"
+  ).textContent = "Kirish";
+
+  document.getElementById(
+    "authMessage"
+  ).textContent = "";
+
+  document.getElementById(
+    "authModal"
+  ).classList.remove("hidden");
 }
 
 
 function showSignup(){
+
   authMode = "signup";
-  document.getElementById("authTitle").textContent = "Ro‘yxatdan o‘tish";
-  document.getElementById("authMessage").textContent = "";
-  document.getElementById("authModal").classList.remove("hidden");
+
+  document.getElementById(
+    "authTitle"
+  ).textContent =
+    "Ro‘yxatdan o‘tish";
+
+  document.getElementById(
+    "authMessage"
+  ).textContent = "";
+
+  document.getElementById(
+    "authModal"
+  ).classList.remove("hidden");
 }
 
 
 function switchAuth(){
+
   if(authMode === "login"){
     showSignup();
   }else{
@@ -469,23 +847,34 @@ function switchAuth(){
 
 
 function closeAuth(){
-  document.getElementById("authModal").classList.add("hidden");
+
+  document.getElementById(
+    "authModal"
+  ).classList.add("hidden");
 }
 
 
 async function showForgotPassword(){
 
   const email =
-    document.getElementById("authEmail").value.trim();
+    document.getElementById(
+      "authEmail"
+    ).value.trim();
 
   if(!email){
-    document.getElementById("authMessage").textContent =
+
+    document.getElementById(
+      "authMessage"
+    ).textContent =
       "Avval emailingizni yozing.";
+
     return;
   }
 
   const message =
-    document.getElementById("authMessage");
+    document.getElementById(
+      "authMessage"
+    );
 
   message.textContent =
     "Parol tiklash xati yuborilmoqda...";
@@ -493,7 +882,8 @@ async function showForgotPassword(){
   try{
 
     const {error} =
-      await supabaseClient.auth.resetPasswordForEmail(
+      await supabaseClient.auth
+      .resetPasswordForEmail(
         email,
         {
           redirectTo:
@@ -509,7 +899,8 @@ async function showForgotPassword(){
   }catch(error){
 
     message.textContent =
-      error.message || "Xatolik yuz berdi.";
+      error.message ||
+      "Xatolik yuz berdi.";
   }
 }
 
@@ -517,19 +908,27 @@ async function showForgotPassword(){
 async function submitAuth(){
 
   const email =
-    document.getElementById("authEmail").value.trim();
+    document.getElementById(
+      "authEmail"
+    ).value.trim();
 
   const password =
-    document.getElementById("authPassword").value;
+    document.getElementById(
+      "authPassword"
+    ).value;
 
   const message =
-    document.getElementById("authMessage");
+    document.getElementById(
+      "authMessage"
+    );
 
   message.textContent = "";
 
   if(!email || !password){
+
     message.textContent =
       "Email va parolni kiriting.";
+
     return;
   }
 
@@ -538,7 +937,8 @@ async function submitAuth(){
     if(authMode === "signup"){
 
       const {error} =
-        await supabaseClient.auth.signUp({
+        await supabaseClient.auth
+        .signUp({
           email,
           password
         });
@@ -551,7 +951,8 @@ async function submitAuth(){
     }else{
 
       const {error} =
-        await supabaseClient.auth.signInWithPassword({
+        await supabaseClient.auth
+        .signInWithPassword({
           email,
           password
         });
@@ -564,7 +965,8 @@ async function submitAuth(){
   }catch(error){
 
     message.textContent =
-      error.message || "Xatolik yuz berdi.";
+      error.message ||
+      "Xatolik yuz berdi.";
   }
 }
 
@@ -572,39 +974,52 @@ async function submitAuth(){
 async function updatePassword(){
 
   const password =
-    document.getElementById("newPassword").value;
+    document.getElementById(
+      "newPassword"
+    ).value;
 
   const password2 =
-    document.getElementById("newPassword2").value;
+    document.getElementById(
+      "newPassword2"
+    ).value;
 
   const message =
-    document.getElementById("recoveryMessage");
+    document.getElementById(
+      "recoveryMessage"
+    );
 
   message.textContent = "";
 
   if(!password || !password2){
+
     message.textContent =
       "Ikkala joyga ham parol kiriting.";
+
     return;
   }
 
   if(password !== password2){
+
     message.textContent =
       "Parollar bir xil emas.";
+
     return;
   }
 
   if(password.length < 6){
+
     message.textContent =
       "Parol kamida 6 ta belgidan iborat bo‘lsin.";
+
     return;
   }
 
   try{
 
     const {error} =
-      await supabaseClient.auth.updateUser({
-        password:password
+      await supabaseClient.auth
+      .updateUser({
+        password
       });
 
     if(error) throw error;
@@ -613,9 +1028,13 @@ async function updatePassword(){
       "Parol muvaffaqiyatli o‘zgartirildi ❤️";
 
     setTimeout(() => {
-      document.getElementById("recoveryModal")
-        .classList.add("hidden");
+
+      document.getElementById(
+        "recoveryModal"
+      ).classList.add("hidden");
+
       checkUser();
+
     },1200);
 
   }catch(error){
@@ -639,6 +1058,10 @@ async function logout(){
 }
 
 
+/* =========================
+   AUTH STATE
+========================= */
+
 supabaseClient.auth.onAuthStateChange(
   async (event,session) => {
 
@@ -646,32 +1069,52 @@ supabaseClient.auth.onAuthStateChange(
       session?.user || null;
 
     if(event === "PASSWORD_RECOVERY"){
-      document.getElementById("recoveryModal")
-        .classList.remove("hidden");
+
+      document.getElementById(
+        "recoveryModal"
+      ).classList.remove("hidden");
     }
 
     updateAuthUI();
 
-    await loadStories();
+    if(!isMediaRoute()){
+      await loadStories();
+    }
   }
 );
 
 
+/* =========================
+   CHECK USER
+========================= */
+
 async function checkUser(){
 
   const {data} =
-    await supabaseClient.auth.getSession();
+    await supabaseClient.auth
+    .getSession();
 
   currentUser =
     data.session?.user || null;
 
   updateAuthUI();
 
+  if(isMediaRoute()){
+
+    await openMediaFromLink();
+
+    return;
+  }
+
   await loadStories();
 
   openStoryFromLink();
 }
 
+
+/* =========================
+   UI
+========================= */
 
 function updateAuthUI(){
 
@@ -690,13 +1133,25 @@ function updateAuthUI(){
 
   userInfo.innerHTML =
     "Kirdingiz: <b>" +
-    escapeHtml(currentUser.email || "") +
+    escapeHtml(
+      currentUser.email || ""
+    ) +
     "</b>" +
-    (isAdmin ? " 👑 Admin" : "");
+    (
+      isAdmin
+      ? " 👑 Admin"
+      : ""
+    );
 
-  writerPanel.classList.remove("hidden");
+  writerPanel.classList.remove(
+    "hidden"
+  );
 }
 
+
+/* =========================
+   LOAD STORIES
+========================= */
 
 async function loadStories(){
 
@@ -744,26 +1199,34 @@ async function loadStories(){
 
     storiesList.innerHTML =
       "<p>Hikoyalarni yuklashda xatolik: " +
-      escapeHtml(error.message) +
+      escapeHtml(
+        error.message
+      ) +
       "</p>";
   }
 }
 
 
+/* =========================
+   RENDER STORIES
+========================= */
+
 function renderStories(){
 
   const search =
-    document.getElementById("searchInput")
-      .value
-      .toLowerCase()
-      .trim();
+    document.getElementById(
+      "searchInput"
+    ).value
+    .toLowerCase()
+    .trim();
 
   const filtered =
     stories.filter(story => {
 
       const title =
-        String(story.title || "")
-        .toLowerCase();
+        String(
+          story.title || ""
+        ).toLowerCase();
 
       return title.includes(search);
     });
@@ -781,40 +1244,56 @@ function renderStories(){
   filtered.forEach(story => {
 
     const div =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     div.className = "story";
 
+
     const title =
-      document.createElement("h3");
+      document.createElement(
+        "h3"
+      );
 
     title.textContent =
-      story.title || "Nomsiz hikoya";
+      story.title ||
+      "Nomsiz hikoya";
 
     div.appendChild(title);
 
+
     const date =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     date.className = "small";
 
     if(story.created_at){
+
       date.textContent =
         new Date(
           story.created_at
-        ).toLocaleString("uz-UZ");
+        ).toLocaleString(
+          "uz-UZ"
+        );
     }
 
     div.appendChild(date);
+
 
     const locked =
       story.is_password_protected ||
       !!story.story_password_hash;
 
+
     if(locked){
 
       const lock =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       lock.className = "lock";
 
@@ -826,49 +1305,103 @@ function renderStories(){
     }else{
 
       const text =
-        document.createElement("p");
+        document.createElement(
+          "p"
+        );
 
       text.textContent =
         story.content
-          ? story.content.slice(0,180) +
-            (
-              story.content.length > 180
-              ? "..."
-              : ""
-            )
-          : "";
+        ? story.content.slice(
+            0,
+            180
+          ) +
+          (
+            story.content.length > 180
+            ? "..."
+            : ""
+          )
+        : "";
 
       div.appendChild(text);
     }
 
+
+    /* MEDIA BELGILARI */
+
+    const mediaInfo =
+      document.createElement(
+        "div"
+      );
+
+    mediaInfo.className =
+      "small";
+
+    let mediaText = "";
+
+    if(story.image_path)
+      mediaText += " 📸";
+
+    if(story.video_path)
+      mediaText += " 🎥";
+
+    if(story.audio_path)
+      mediaText += " 🎵";
+
+    if(story.voice_path)
+      mediaText += " 🎤";
+
+    if(mediaText){
+
+      mediaInfo.textContent =
+        "Media:" + mediaText;
+
+      div.appendChild(
+        mediaInfo
+      );
+    }
+
+
     const buttons =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     buttons.className = "row";
 
+
     const open =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
 
     open.textContent =
-      locked ? "🔐 Ochish" : "📖 O‘qish";
+      locked
+      ? "🔐 Ochish"
+      : "📖 O‘qish";
 
     open.onclick =
       () => openStory(story);
 
     buttons.appendChild(open);
 
+
     if(currentUser){
 
       const owner =
-        story.owner_id === currentUser.id;
+        story.owner_id ===
+  const owner =
+  story.owner_id ===      currentUser.id;
 
       const admin =
-        currentUser.id === ADMIN_ID;
+        currentUser.id ===
+        ADMIN_ID;
 
       if(owner || admin){
 
         const edit =
-          document.createElement("button");
+          document.createElement(
+            "button"
+          );
 
         edit.textContent =
           "✏️ Tahrirlash";
@@ -876,10 +1409,15 @@ function renderStories(){
         edit.onclick =
           () => editStory(story);
 
-        buttons.appendChild(edit);
+        buttons.appendChild(
+          edit
+        );
+
 
         const del =
-          document.createElement("button");
+          document.createElement(
+            "button"
+          );
 
         del.textContent =
           "🗑 O‘chirish";
@@ -887,33 +1425,139 @@ function renderStories(){
         del.onclick =
           () => deleteStory(story);
 
-        buttons.appendChild(del);
+        buttons.appendChild(
+          del
+        );
       }
     }
 
-    if(story.is_public &&
-       story.share_token){
+
+    if(
+      story.is_public &&
+      story.share_token
+    ){
 
       const share =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
 
       share.textContent =
-        "🔗 Havola";
+        "🔗 Hikoya havolasi";
 
       share.onclick =
         () => copyStoryLink(
           story.share_token
         );
 
-      buttons.appendChild(share);
+      buttons.appendChild(
+        share
+      );
+
+
+      if(story.image_path){
+
+        const imageLink =
+          document.createElement(
+            "button"
+          );
+
+        imageLink.textContent =
+          "📸 Rasm havolasi";
+
+        imageLink.onclick =
+          () => copyMediaLink(
+            story.share_token,
+            "image"
+          );
+
+        buttons.appendChild(
+          imageLink
+        );
+      }
+
+
+      if(story.video_path){
+
+        const videoLink =
+          document.createElement(
+            "button"
+          );
+
+        videoLink.textContent =
+          "🎥 Video havolasi";
+
+        videoLink.onclick =
+          () => copyMediaLink(
+            story.share_token,
+            "video"
+          );
+
+        buttons.appendChild(
+          videoLink
+        );
+      }
+
+
+      if(story.audio_path){
+
+        const audioLink =
+          document.createElement(
+            "button"
+          );
+
+        audioLink.textContent =
+          "🎵 Musiqa havolasi";
+
+        audioLink.onclick =
+          () => copyMediaLink(
+            story.share_token,
+            "audio"
+          );
+
+        buttons.appendChild(
+          audioLink
+        );
+      }
+
+
+      if(story.voice_path){
+
+        const voiceLink =
+          document.createElement(
+            "button"
+          );
+
+        voiceLink.textContent =
+          "🎤 Ovoz havolasi";
+
+        voiceLink.onclick =
+          () => copyMediaLink(
+            story.share_token,
+            "voice"
+          );
+
+        buttons.appendChild(
+          voiceLink
+        );
+      }
     }
 
-    div.appendChild(buttons);
 
-    storiesList.appendChild(div);
+    div.appendChild(
+      buttons
+    );
+
+    storiesList.appendChild(
+      div
+    );
   });
 }
 
+
+/* =========================
+   NEW STORY
+========================= */
 
 function newStory(){
 
@@ -932,6 +1576,8 @@ function newStory(){
 
   editingImagePath = null;
   editingVideoPath = null;
+  editingAudioPath = null;
+  editingVoicePath = null;
 
   writerTitle.textContent =
     "Yangi hikoya";
@@ -942,15 +1588,38 @@ function newStory(){
 
   storyImage.value = "";
   storyVideo.value = "";
+  storyAudio.value = "";
+
+  recordedVoiceBlob = null;
+  recordedChunks = [];
+
+  document.getElementById(
+    "recordPreview"
+  ).src = "";
+
+  document.getElementById(
+    "recordPreview"
+  ).classList.add(
+    "hidden"
+  );
+
+  document.getElementById(
+    "recordStatus"
+  ).textContent = "";
 
   isPublic.checked = true;
 
-  existingMedia.classList.add("hidden");
+  existingMedia.classList.add(
+    "hidden"
+  );
+
   existingMedia.innerHTML = "";
 
   saveMessage.textContent = "";
 
-  writerPanel.classList.remove("hidden");
+  writerPanel.classList.remove(
+    "hidden"
+  );
 
   window.scrollTo({
     top:document.body.scrollHeight,
@@ -959,37 +1628,65 @@ function newStory(){
 }
 
 
-function showFileName(inputId,infoId){
+/* =========================
+   FILE NAME
+========================= */
+
+function showFileName(
+  inputId,
+  infoId
+){
 
   const input =
-    document.getElementById(inputId);
+    document.getElementById(
+      inputId
+    );
 
   const info =
-    document.getElementById(infoId);
+    document.getElementById(
+      infoId
+    );
 
-  if(!input.files.length) return;
+  if(!input.files.length)
+    return;
 
   const file =
     input.files[0];
 
   const mb =
-    (file.size / 1024 / 1024)
-    .toFixed(2);
+    (
+      file.size /
+      1024 /
+      1024
+    ).toFixed(2);
 
   info.textContent =
-    file.name + " — " + mb + " MB";
+    file.name +
+    " — " +
+    mb +
+    " MB";
 }
 
+
+/* =========================
+   UPLOAD MEDIA
+========================= */
 
 async function uploadMedia(file){
 
   if(!currentUser){
-    throw new Error("Avval tizimga kiring.");
+
+    throw new Error(
+      "Avval tizimga kiring."
+    );
   }
 
   const extension =
     file.name.includes(".")
-    ? file.name.split(".").pop().toLowerCase()
+    ? file.name
+        .split(".")
+        .pop()
+        .toLowerCase()
     : "file";
 
   const path =
@@ -1018,6 +1715,47 @@ async function uploadMedia(file){
 }
 
 
+async function uploadBlob(
+  blob,
+  extension
+){
+
+  if(!currentUser){
+
+    throw new Error(
+      "Avval tizimga kiring."
+    );
+  }
+
+  const path =
+    currentUser.id +
+    "/" +
+    crypto.randomUUID() +
+    "." +
+    extension;
+
+  const {error} =
+    await supabaseClient
+    .storage
+    .from(BUCKET)
+    .upload(
+      path,
+      blob,
+      {
+        cacheControl:"3600",
+        upsert:false,
+        contentType:
+          blob.type ||
+          "audio/webm"
+      }
+    );
+
+  if(error) throw error;
+
+  return path;
+}
+
+
 async function deleteMedia(path){
 
   if(!path) return;
@@ -1026,9 +1764,12 @@ async function deleteMedia(path){
     await supabaseClient
     .storage
     .from(BUCKET)
-    .remove([path]);
+    .remove([
+      path
+    ]);
 
   if(error){
+
     console.warn(
       "Media o‘chmadi:",
       error.message
@@ -1045,17 +1786,195 @@ function getMediaUrl(path){
     supabaseClient
     .storage
     .from(BUCKET)
-    .getPublicUrl(path);
+    .getPublicUrl(
+      path
+    );
 
   return data.publicUrl;
 }
 
 
+/* =========================
+   VOICE RECORDING
+========================= */
+
+async function startRecording(){
+
+  if(!currentUser){
+
+    alert(
+      "Avval tizimga kiring."
+    );
+
+    return;
+  }
+
+  if(
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
+  ){
+
+    alert(
+      "Brauzeringiz ovoz yozishni qo‘llab-quvvatlamaydi."
+    );
+
+    return;
+  }
+
+  try{
+
+    const stream =
+      await navigator.mediaDevices
+      .getUserMedia({
+        audio:true
+      });
+
+    recordedChunks = [];
+
+    let options = {};
+
+    if(
+      MediaRecorder.isTypeSupported(
+        "audio/webm"
+      )
+    ){
+
+      options.mimeType =
+        "audio/webm";
+    }
+
+    mediaRecorder =
+      new MediaRecorder(
+        stream,
+        options
+      );
+
+
+    mediaRecorder.ondataavailable =
+      event => {
+
+        if(
+          event.data.size > 0
+        ){
+
+          recordedChunks.push(
+            event.data
+          );
+        }
+      };
+
+
+    mediaRecorder.onstop =
+      () => {
+
+        stream
+          .getTracks()
+          .forEach(
+            track =>
+              track.stop()
+          );
+
+        const mime =
+          mediaRecorder.mimeType ||
+          "audio/webm";
+
+        recordedVoiceBlob =
+          new Blob(
+            recordedChunks,
+            {
+              type:mime
+            }
+          );
+
+        const url =
+          URL.createObjectURL(
+            recordedVoiceBlob
+          );
+
+        const preview =
+          document.getElementById(
+            "recordPreview"
+          );
+
+        preview.src = url;
+
+        preview.classList.remove(
+          "hidden"
+        );
+
+        document.getElementById(
+          "recordStatus"
+        ).textContent =
+          "🎤 Ovoz yozildi. Saqlashni bosing.";
+      };
+
+
+    mediaRecorder.start();
+
+
+    document.getElementById(
+      "startRecordButton"
+    ).classList.add(
+      "hidden"
+    );
+
+    document.getElementById(
+      "stopRecordButton"
+    ).classList.remove(
+      "hidden"
+    );
+
+    document.getElementById(
+      "recordStatus"
+    ).textContent =
+      "🔴 Yozilmoqda...";
+
+  }catch(error){
+
+    alert(
+      "Mikrofonga ruxsat berilmadi yoki xatolik yuz berdi: " +
+      error.message
+    );
+  }
+}
+
+
+function stopRecording(){
+
+  if(
+    mediaRecorder &&
+    mediaRecorder.state !==
+    "inactive"
+  ){
+
+    mediaRecorder.stop();
+  }
+
+  document.getElementById(
+    "startRecordButton"
+  ).classList.remove(
+    "hidden"
+  );
+
+  document.getElementById(
+    "stopRecordButton"
+  ).classList.add(
+    "hidden"
+  );
+}
+
+
+/* =========================
+   SAVE STORY
+========================= */
+
 async function saveStory(){
 
   if(!currentUser){
 
-    alert("Avval tizimga kiring.");
+    alert(
+      "Avval tizimga kiring."
+    );
 
     return;
   }
@@ -1066,13 +1985,15 @@ async function saveStory(){
   const content =
     storyContent.value.trim();
 
-  if(!title || !content){
+
+  if(!title){
 
     saveMessage.textContent =
-      "Hikoya nomi va matnini kiriting.";
+      "Hikoya nomini kiriting.";
 
     return;
   }
+
 
   const imageFile =
     storyImage.files[0];
@@ -1080,45 +2001,115 @@ async function saveStory(){
   const videoFile =
     storyVideo.files[0];
 
+  const audioFile =
+    storyAudio.files[0];
+
+
   if(imageFile){
 
-    if(!imageFile.type.startsWith("image/")){
+    if(
+      !imageFile.type
+      .startsWith("image/")
+    ){
+
       saveMessage.textContent =
         "Faqat rasm fayli tanlang.";
+
       return;
     }
 
-    if(imageFile.size > MAX_IMAGE_SIZE){
+    if(
+      imageFile.size >
+      MAX_IMAGE_SIZE
+    ){
+
       saveMessage.textContent =
         "❌ Rasm 10 MB dan katta bo‘lmasligi kerak.";
+
       return;
     }
   }
+
 
   if(videoFile){
 
-    if(!videoFile.type.startsWith("video/")){
+    if(
+      !videoFile.type
+      .startsWith("video/")
+    ){
+
       saveMessage.textContent =
         "Faqat video fayli tanlang.";
+
       return;
     }
 
-    if(videoFile.size > MAX_VIDEO_SIZE){
+    if(
+      videoFile.size >
+      MAX_VIDEO_SIZE
+    ){
+
       saveMessage.textContent =
         "❌ Video 100 MB dan katta bo‘lmasligi kerak.";
+
       return;
     }
   }
+
+
+  if(audioFile){
+
+    if(
+      !audioFile.type
+      .startsWith("audio/")
+    ){
+
+      saveMessage.textContent =
+        "Faqat audio fayli tanlang.";
+
+      return;
+    }
+
+    if(
+      audioFile.size >
+      MAX_AUDIO_SIZE
+    ){
+
+      saveMessage.textContent =
+        "❌ Musiqa 50 MB dan katta bo‘lmasligi kerak.";
+
+      return;
+    }
+  }
+
+
+  if(
+    recordedVoiceBlob &&
+    recordedVoiceBlob.size >
+    MAX_AUDIO_SIZE
+  ){
+
+    saveMessage.textContent =
+      "❌ Ovozli xabar 50 MB dan katta bo‘lmasligi kerak.";
+
+    return;
+  }
+
 
   saveMessage.textContent =
     "Saqlanmoqda...";
 
+
   let uploadedImage = null;
   let uploadedVideo = null;
+  let uploadedAudio = null;
+  let uploadedVoice = null;
+
 
   try{
 
     let passwordHash = null;
+
 
     if(storyPassword.value){
 
@@ -1134,14 +2125,20 @@ async function saveStory(){
       if(error) throw error;
 
       passwordHash = data;
-    }    if(imageFile){
+    }
+
+
+    if(imageFile){
 
       saveMessage.textContent =
         "📸 Rasm yuklanmoqda...";
 
       uploadedImage =
-        await uploadMedia(imageFile);
+        await uploadMedia(
+          imageFile
+        );
     }
+
 
     if(videoFile){
 
@@ -1149,61 +2146,178 @@ async function saveStory(){
         "🎥 Video yuklanmoqda...";
 
       uploadedVideo =
-        await uploadMedia(videoFile);
+        await uploadMedia(
+          videoFile
+        );
     }
+
+
+    if(audioFile){
+
+      saveMessage.textContent =
+        "🎵 Musiqa yuklanmoqda...";
+
+      uploadedAudio =
+        await uploadMedia(
+          audioFile
+        );
+    }
+
+
+    if(recordedVoiceBlob){
+
+      saveMessage.textContent =
+        "🎤 Ovozli xabar yuklanmoqda...";
+
+      uploadedVoice =
+        await uploadBlob(
+          recordedVoiceBlob,
+          "webm"
+        );
+    }
+
 
     if(editingId){
 
-      const oldImage = editingImagePath;
-      const oldVideo = editingVideoPath;
+      const oldImage =
+        editingImagePath;
 
-      let finalImage = editingImagePath;
-      let finalVideo = editingVideoPath;
+      const oldVideo =
+        editingVideoPath;
 
-      if(uploadedImage){
-        finalImage = uploadedImage;
-      }
+      const oldAudio =
+        editingAudioPath;
 
-      if(uploadedVideo){
-        finalVideo = uploadedVideo;
-      }
+      const oldVoice =
+        editingVoicePath;
+
+
+      let finalImage =
+        editingImagePath;
+
+      let finalVideo =
+        editingVideoPath;
+
+      let finalAudio =
+        editingAudioPath;
+
+      let finalVoice =
+        editingVoicePath;
+
+
+      if(uploadedImage)
+        finalImage =
+          uploadedImage;
+
+      if(uploadedVideo)
+        finalVideo =
+          uploadedVideo;
+
+      if(uploadedAudio)
+        finalAudio =
+          uploadedAudio;
+
+      if(uploadedVoice)
+        finalVoice =
+          uploadedVoice;
+
 
       const updateData = {
+
         title,
+
         content,
-        is_public: isPublic.checked,
-        image_path: finalImage,
-        video_path: finalVideo
+
+        is_public:
+          isPublic.checked,
+
+        image_path:
+          finalImage,
+
+        video_path:
+          finalVideo,
+
+        audio_path:
+          finalAudio,
+
+        voice_path:
+          finalVoice
       };
 
+
       if(storyPassword.value){
+
         updateData.story_password_hash =
           passwordHash;
       }
 
+
       const {error} =
         await supabaseClient
         .from("stories")
-        .update(updateData)
-        .eq("id",editingId);
+        .update(
+          updateData
+        )
+        .eq(
+          "id",
+          editingId
+        );
+
 
       if(error) throw error;
+
 
       if(
         uploadedImage &&
         oldImage &&
-        oldImage !== uploadedImage
+        oldImage !==
+        uploadedImage
       ){
-        await deleteMedia(oldImage);
+
+        await deleteMedia(
+          oldImage
+        );
       }
+
 
       if(
         uploadedVideo &&
         oldVideo &&
-        oldVideo !== uploadedVideo
+        oldVideo !==
+        uploadedVideo
       ){
-        await deleteMedia(oldVideo);
+
+        await deleteMedia(
+          oldVideo
+        );
       }
+
+
+      if(
+        uploadedAudio &&
+        oldAudio &&
+        oldAudio !==
+        uploadedAudio
+      ){
+
+        await deleteMedia(
+          oldAudio
+        );
+      }
+
+
+      if(
+        uploadedVoice &&
+        oldVoice &&
+        oldVoice !==
+        uploadedVoice
+      ){
+
+        await deleteMedia(
+          oldVoice
+        );
+      }
+
 
       saveMessage.textContent =
         "Hikoya yangilandi ❤️";
@@ -1214,24 +2328,49 @@ async function saveStory(){
         await supabaseClient
         .from("stories")
         .insert({
+
           title,
+
           content,
-          owner_id: currentUser.id,
-          is_public: isPublic.checked,
-          story_password_hash: passwordHash,
-          image_path: uploadedImage,
-          video_path: uploadedVideo
+
+          owner_id:
+            currentUser.id,
+
+          is_public:
+            isPublic.checked,
+
+          story_password_hash:
+            passwordHash,
+
+          image_path:
+            uploadedImage,
+
+          video_path:
+            uploadedVideo,
+
+          audio_path:
+            uploadedAudio,
+
+          voice_path:
+            uploadedVoice
         });
 
+
       if(error) throw error;
+
 
       saveMessage.textContent =
         "Hikoya saqlandi ❤️";
     }
 
+
     editingId = null;
+
     editingImagePath = null;
     editingVideoPath = null;
+    editingAudioPath = null;
+    editingVoicePath = null;
+
 
     storyTitle.value = "";
     storyContent.value = "";
@@ -1239,47 +2378,109 @@ async function saveStory(){
 
     storyImage.value = "";
     storyVideo.value = "";
+    storyAudio.value = "";
+
+
+    recordedVoiceBlob = null;
+    recordedChunks = [];
+
+
+    const preview =
+      document.getElementById(
+        "recordPreview"
+      );
+
+    preview.src = "";
+
+    preview.classList.add(
+      "hidden"
+    );
+
+
+    document.getElementById(
+      "recordStatus"
+    ).textContent = "";
+
 
     isPublic.checked = true;
+
 
     writerTitle.textContent =
       "Yangi hikoya";
 
-    existingMedia.classList.add("hidden");
+
+    existingMedia.classList.add(
+      "hidden"
+    );
+
     existingMedia.innerHTML = "";
 
+
     await loadStories();
+
 
   }catch(error){
 
     console.error(error);
 
-    if(uploadedImage){
-      await deleteMedia(uploadedImage);
-    }
 
-    if(uploadedVideo){
-      await deleteMedia(uploadedVideo);
-    }
+    if(uploadedImage)
+      await deleteMedia(
+        uploadedImage
+      );
+
+    if(uploadedVideo)
+      await deleteMedia(
+        uploadedVideo
+      );
+
+    if(uploadedAudio)
+      await deleteMedia(
+        uploadedAudio
+      );
+
+    if(uploadedVoice)
+      await deleteMedia(
+        uploadedVoice
+      );
+
 
     saveMessage.textContent =
-      "❌ Xatolik: " + error.message;
+      "❌ Xatolik: " +
+      error.message;
   }
 }
 
 
+/* =========================
+   EDIT STORY
+========================= */
+
 function editStory(story){
 
-  editingId = story.id;
+  editingId =
+    story.id;
 
   editingImagePath =
-    story.image_path || null;
+    story.image_path ||
+    null;
 
   editingVideoPath =
-    story.video_path || null;
+    story.video_path ||
+    null;
+
+  editingAudioPath =
+    story.audio_path ||
+    null;
+
+  editingVoicePath =
+    story.voice_path ||
+    null;
+
 
   writerTitle.textContent =
     "Hikoyani tahrirlash";
+
 
   storyTitle.value =
     story.title || "";
@@ -1287,20 +2488,32 @@ function editStory(story){
   storyContent.value =
     story.content || "";
 
+
   isPublic.checked =
     !!story.is_public;
+
 
   storyPassword.value = "";
 
   storyImage.value = "";
   storyVideo.value = "";
+  storyAudio.value = "";
+
+
+  recordedVoiceBlob = null;
+
 
   showExistingMedia();
+
 
   saveMessage.textContent =
     "Yangi parol yozsangiz, eski parol almashtiriladi.";
 
-  writerPanel.classList.remove("hidden");
+
+  writerPanel.classList.remove(
+    "hidden"
+  );
+
 
   window.scrollTo({
     top:document.body.scrollHeight,
@@ -1309,60 +2522,132 @@ function editStory(story){
 }
 
 
+/* =========================
+   EXISTING MEDIA
+========================= */
+
 function showExistingMedia(){
 
   existingMedia.innerHTML = "";
 
-  if(!editingImagePath &&
-     !editingVideoPath){
 
-    existingMedia.classList.add("hidden");
+  if(
+    !editingImagePath &&
+    !editingVideoPath &&
+    !editingAudioPath &&
+    !editingVoicePath
+  ){
+
+    existingMedia.classList.add(
+      "hidden"
+    );
+
     return;
   }
 
-  existingMedia.classList.remove("hidden");
+
+  existingMedia.classList.remove(
+    "hidden"
+  );
+
 
   const title =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   title.innerHTML =
     "<b>Hozirgi media:</b>";
 
-  existingMedia.appendChild(title);
+  existingMedia.appendChild(
+    title
+  );
+
 
   if(editingImagePath){
 
     const p =
-      document.createElement("p");
+      document.createElement(
+        "p"
+      );
 
     p.textContent =
       "📸 Rasm saqlangan.";
 
-    existingMedia.appendChild(p);
+    existingMedia.appendChild(
+      p
+    );
   }
+
 
   if(editingVideoPath){
 
     const p =
-      document.createElement("p");
+      document.createElement(
+        "p"
+      );
 
     p.textContent =
       "🎥 Video saqlangan.";
 
-    existingMedia.appendChild(p);
+    existingMedia.appendChild(
+      p
+    );
   }
 
-  const info =
-    document.createElement("div");
 
-  info.className = "file-info";
+  if(editingAudioPath){
+
+    const p =
+      document.createElement(
+        "p"
+      );
+
+    p.textContent =
+      "🎵 Musiqa saqlangan.";
+
+    existingMedia.appendChild(
+      p
+    );
+  }
+
+
+  if(editingVoicePath){
+
+    const p =
+      document.createElement(
+        "p"
+      );
+
+    p.textContent =
+      "🎤 Ovozli xabar saqlangan.";
+
+    existingMedia.appendChild(
+      p
+    );
+  }
+
+
+  const info =
+    document.createElement(
+      "div"
+    );
+
+  info.className =
+    "file-info";
 
   info.textContent =
-    "Yangi rasm yoki video tanlasangiz, eskisi almashtiriladi.";
+    "Yangi media tanlasangiz, shu turdagi eskisi almashtiriladi.";
 
-  existingMedia.appendChild(info);
+  existingMedia.appendChild(
+    info
+  );
 }
 
+
+/* =========================
+   CANCEL
+========================= */
 
 function cancelEdit(){
 
@@ -1370,9 +2655,13 @@ function cancelEdit(){
 
   editingImagePath = null;
   editingVideoPath = null;
+  editingAudioPath = null;
+  editingVoicePath = null;
+
 
   writerTitle.textContent =
     "Yangi hikoya";
+
 
   storyTitle.value = "";
   storyContent.value = "";
@@ -1380,21 +2669,39 @@ function cancelEdit(){
 
   storyImage.value = "";
   storyVideo.value = "";
+  storyAudio.value = "";
+
+
+  recordedVoiceBlob = null;
+  recordedChunks = [];
+
 
   isPublic.checked = true;
 
-  existingMedia.classList.add("hidden");
+
+  existingMedia.classList.add(
+    "hidden"
+  );
+
   existingMedia.innerHTML = "";
+
 
   saveMessage.textContent = "";
 }
 
 
+/* =========================
+   DELETE STORY
+========================= */
+
 async function deleteStory(story){
 
-  if(!confirm(
-    "Bu hikoyani o‘chirmoqchimisiz?"
-  )) return;
+  if(
+    !confirm(
+      "Bu hikoyani o‘chirmoqchimisiz?"
+    )
+  ) return;
+
 
   try{
 
@@ -1402,19 +2709,37 @@ async function deleteStory(story){
       await supabaseClient
       .from("stories")
       .delete()
-      .eq("id",story.id);
+      .eq(
+        "id",
+        story.id
+      );
 
     if(error) throw error;
 
-    if(story.image_path){
-      await deleteMedia(story.image_path);
-    }
 
-    if(story.video_path){
-      await deleteMedia(story.video_path);
-    }
+    if(story.image_path)
+      await deleteMedia(
+        story.image_path
+      );
+
+    if(story.video_path)
+      await deleteMedia(
+        story.video_path
+      );
+
+    if(story.audio_path)
+      await deleteMedia(
+        story.audio_path
+      );
+
+    if(story.voice_path)
+      await deleteMedia(
+        story.voice_path
+      );
+
 
     await loadStories();
+
 
   }catch(error){
 
@@ -1425,6 +2750,10 @@ async function deleteStory(story){
   }
 }
 
+
+/* =========================
+   OPEN STORY
+========================= */
 
 async function openStory(story){
 
@@ -1440,11 +2769,14 @@ async function openStory(story){
     return;
   }
 
+
   if(
     currentUser &&
     (
-      story.owner_id === currentUser.id ||
-      currentUser.id === ADMIN_ID
+      story.owner_id ===
+      currentUser.id ||
+      currentUser.id ===
+      ADMIN_ID
     )
   ){
 
@@ -1453,15 +2785,19 @@ async function openStory(story){
       story.content,
       story.created_at,
       story.image_path,
-      story.video_path
+      story.video_path,
+      story.audio_path,
+      story.voice_path
     );
 
     return;
   }
 
+
   const locked =
     story.is_password_protected ||
     !!story.story_password_hash;
+
 
   if(!locked){
 
@@ -1470,7 +2806,9 @@ async function openStory(story){
       story.content,
       story.created_at,
       story.image_path,
-      story.video_path
+      story.video_path,
+      story.audio_path,
+      story.voice_path
     );
 
     return;
@@ -1482,7 +2820,13 @@ async function openStory(story){
 }
 
 
-async function openPublicStoryByToken(token){
+/* =========================
+   PUBLIC STORY
+========================= */
+
+async function openPublicStoryByToken(
+  token
+){
 
   try{
 
@@ -1490,13 +2834,18 @@ async function openPublicStoryByToken(token){
       await supabaseClient.rpc(
         "get_public_story",
         {
-          p_token: token
+          p_token:
+            token
         }
       );
 
-    if(error) throw error;
+    if(error)
+      throw error;
 
-    if(!data || data.length === 0){
+    if(
+      !data ||
+      data.length === 0
+    ){
 
       alert(
         "Hikoya topilmadi yoki ommaga yopiq."
@@ -1505,23 +2854,30 @@ async function openPublicStoryByToken(token){
       return;
     }
 
-    const story = data[0];
+    let story =
+      data[0];
 
-    if(story.is_password_protected){
+    if(
+      story.is_password_protected
+    ){
 
       const password =
         prompt(
           "🔐 Bu hikoya parol bilan himoyalangan.\nParolni kiriting:"
         );
 
-      if(password === null) return;
+      if(password === null)
+        return;
 
       const result =
         await supabaseClient.rpc(
           "verify_story_password",
           {
-            p_token: token,
-            p_password: password
+            p_token:
+              token,
+
+            p_password:
+              password
           }
         );
 
@@ -1533,32 +2889,26 @@ async function openPublicStoryByToken(token){
         result.data.length === 0
       ){
 
-        alert("Parol noto‘g‘ri.");
+        alert(
+          "Parol noto‘g‘ri."
+        );
 
         return;
       }
 
-      const unlocked =
+      story =
         result.data[0];
-
-      showReader(
-        unlocked.title,
-        unlocked.content,
-        unlocked.created_at,
-        unlocked.image_path,
-        unlocked.video_path
-      );
-
-    }else{
-
-      showReader(
-        story.title,
-        story.content,
-        story.created_at,
-        story.image_path,
-        story.video_path
-      );
     }
+
+    showReader(
+      story.title,
+      story.content,
+      story.created_at,
+      story.image_path,
+      story.video_path,
+      story.audio_path,
+      story.voice_path
+    );
 
   }catch(error){
 
@@ -1570,85 +2920,202 @@ async function openPublicStoryByToken(token){
 }
 
 
+/* =========================
+   STORY READER
+========================= */
+
 function showReader(
   title,
   content,
   date,
   imagePath,
-  videoPath
+  videoPath,
+  audioPath,
+  voicePath
 ){
 
-  document.getElementById("readerTitle")
-    .textContent =
-    title || "Hikoya";
+  document.getElementById(
+    "readerTitle"
+  ).textContent =
+    title ||
+    "Hikoya";
 
-  document.getElementById("readerDate")
-    .textContent =
+  document.getElementById(
+    "readerDate"
+  ).textContent =
     date
-    ? new Date(date).toLocaleString("uz-UZ")
+    ? new Date(
+        date
+      ).toLocaleString(
+        "uz-UZ"
+      )
     : "";
 
-  document.getElementById("readerContent")
-    .textContent =
-    content || "";
+  document.getElementById(
+    "readerContent"
+  ).textContent =
+    content ||
+    "";
 
   const media =
-    document.getElementById("readerMedia");
+    document.getElementById(
+      "readerMedia"
+    );
 
   media.innerHTML = "";
 
   if(imagePath){
 
     const img =
-      document.createElement("img");
+      document.createElement(
+        "img"
+      );
 
     img.src =
-      getMediaUrl(imagePath);
+      getMediaUrl(
+        imagePath
+      );
 
     img.alt =
       "Hikoya rasmi";
 
-    media.appendChild(img);
+    media.appendChild(
+      img
+    );
   }
 
   if(videoPath){
 
     const video =
-      document.createElement("video");
+      document.createElement(
+        "video"
+      );
 
     video.src =
-      getMediaUrl(videoPath);
+      getMediaUrl(
+        videoPath
+      );
 
     video.controls = true;
     video.playsInline = true;
-    video.preload = "metadata";
+    video.preload =
+      "metadata";
 
-    media.appendChild(video);
+    media.appendChild(
+      video
+    );
   }
 
-  document.getElementById("readerModal")
-    .classList.remove("hidden");
+  if(audioPath){
+
+    const title =
+      document.createElement(
+        "div"
+      );
+
+    title.textContent =
+      "🎵 Musiqa";
+
+    title.style.marginTop =
+      "15px";
+
+    media.appendChild(
+      title
+    );
+
+    const audio =
+      document.createElement(
+        "audio"
+      );
+
+    audio.src =
+      getMediaUrl(
+        audioPath
+      );
+
+    audio.controls = true;
+    audio.preload =
+      "metadata";
+
+    media.appendChild(
+      audio
+    );
+  }
+
+  if(voicePath){
+
+    const title =
+      document.createElement(
+        "div"
+      );
+
+    title.textContent =
+      "🎤 Ovozli xabar";
+
+    title.style.marginTop =
+      "15px";
+
+    media.appendChild(
+      title
+    );
+
+    const audio =
+      document.createElement(
+        "audio"
+      );
+
+    audio.src =
+      getMediaUrl(
+        voicePath
+      );
+
+    audio.controls = true;
+    audio.preload =
+      "metadata";
+
+    media.appendChild(
+      audio
+    );
+  }
+
+  document.getElementById(
+    "readerModal"
+  ).classList.remove(
+    "hidden"
+  );
 }
 
 
 function closeReader(){
 
-  document.getElementById("readerModal")
-    .classList.add("hidden");
+  document.getElementById(
+    "readerModal"
+  ).classList.add(
+    "hidden"
+  );
 }
 
 
-async function copyStoryLink(token){
+/* =========================
+   STORY LINK
+========================= */
+
+async function copyStoryLink(
+  token
+){
 
   const url =
     window.location.origin +
     window.location.pathname +
     "?story=" +
-    encodeURIComponent(token);
+    encodeURIComponent(
+      token
+    );
 
   try{
 
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard
+      .writeText(url);
 
     alert(
       "Hikoya havolasi nusxalandi ❤️\n\n" +
@@ -1665,6 +3132,364 @@ async function copyStoryLink(token){
 }
 
 
+/* =========================
+   MEDIA LINK
+========================= */
+
+async function copyMediaLink(
+  token,
+  type
+){
+
+  const url =
+    window.location.origin +
+    window.location.pathname +
+    "?media=" +
+    encodeURIComponent(
+      token
+    ) +
+    "&type=" +
+    encodeURIComponent(
+      type
+    );
+
+  try{
+
+    await navigator.clipboard
+      .writeText(url);
+
+    const names = {
+
+      image:
+        "📸 Rasm",
+
+      video:
+        "🎥 Video",
+
+      audio:
+        "🎵 Musiqa",
+
+      voice:
+        "🎤 Ovozli xabar"
+    };
+
+    alert(
+      (names[type] ||
+       "Media") +
+      " havolasi nusxalandi ❤️\n\n" +
+      "Endi uni Telegramga yuborishingiz mumkin."
+    );
+
+  }catch{
+
+    prompt(
+      "Havolani nusxalang:",
+      url
+    );
+  }
+}
+
+
+/* =========================
+   MEDIA FROM LINK
+========================= */
+
+async function openMediaFromLink(){
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+  const token =
+    params.get(
+      "media"
+    );
+
+  const type =
+    params.get(
+      "type"
+    );
+
+  if(!token || !type)
+    return;
+
+  document.getElementById(
+    "mainHeader"
+  ).classList.add(
+    "hidden"
+  );
+
+  document.getElementById(
+    "mainNav"
+  ).classList.add(
+    "hidden"
+  );
+
+  document.getElementById(
+    "mainContainer"
+  ).classList.add(
+    "hidden"
+  );
+
+  const page =
+    document.getElementById(
+      "mediaOnlyPage"
+    );
+
+  page.classList.remove(
+    "hidden"
+  );
+
+  const content =
+    document.getElementById(
+      "mediaOnlyContent"
+    );
+
+  const title =
+    document.getElementById(
+      "mediaOnlyTitle"
+    );
+
+  const date =
+    document.getElementById(
+      "mediaOnlyDate"
+    );
+
+  const icon =
+    document.getElementById(
+      "mediaOnlyIcon"
+    );
+
+  content.innerHTML =
+    '<div class="media-only-error">⏳ Yuklanmoqda...</div>';
+
+  try{
+
+    const {data,error} =
+      await supabaseClient.rpc(
+        "get_public_story",
+        {
+          p_token:
+            token
+        }
+      );
+
+    if(error)
+      throw error;
+
+    if(
+      !data ||
+      data.length === 0
+    ){
+
+      content.innerHTML =
+        '<div class="media-only-error">❌ Media topilmadi yoki havola yopiq.</div>';
+
+      return;
+    }
+
+    let story =
+      data[0];
+
+    if(
+      story.is_password_protected
+    ){
+
+      const password =
+        prompt(
+          "🔐 Bu media parol bilan himoyalangan.\nParolni kiriting:"
+        );
+
+      if(password === null){
+
+        content.innerHTML =
+          '<div class="media-only-error">🔒 Parol kiritilmadi.</div>';
+
+        return;
+      }
+
+      const result =
+        await supabaseClient.rpc(
+          "verify_story_password",
+          {
+            p_token:
+              token,
+
+            p_password:
+              password
+          }
+        );
+
+      if(result.error)
+        throw result.error;
+
+      if(
+        !result.data ||
+        result.data.length === 0
+      ){
+
+        content.innerHTML =
+          '<div class="media-only-error">❌ Parol noto‘g‘ri.</div>';
+
+        return;
+      }
+
+      story =
+        result.data[0];
+    }
+
+    let path = null;
+
+    if(type === "image"){
+
+      path =
+        story.image_path;
+
+      icon.textContent =
+        "📸";
+
+    }else if(type === "video"){
+
+      path =
+        story.video_path;
+
+      icon.textContent =
+        "🎥";
+
+    }else if(type === "audio"){
+
+      path =
+        story.audio_path;
+
+      icon.textContent =
+        "🎵";
+
+    }else if(type === "voice"){
+
+      path =
+        story.voice_path;
+
+      icon.textContent =
+        "🎤";
+    }
+
+    if(!path){
+
+      content.innerHTML =
+        '<div class="media-only-error">❌ Bu havolada kerakli media mavjud emas.</div>';
+
+      return;
+    }
+
+    title.textContent =
+      story.title ||
+      "Munisam hikoyalari";
+
+    date.textContent =
+      story.created_at
+      ? "📅 " +
+        new Date(
+          story.created_at
+        ).toLocaleString(
+          "uz-UZ"
+        )
+      : "";
+
+    const url =
+      getMediaUrl(
+        path
+      );
+
+    content.innerHTML = "";
+
+    if(type === "image"){
+
+      const img =
+        document.createElement(
+          "img"
+        );
+
+      img.src =
+        url;
+
+      img.alt =
+        story.title ||
+        "Rasm";
+
+      img.style.width =
+        "100%";
+
+      img.style.maxHeight =
+        "75vh";
+
+      img.style.objectFit =
+        "contain";
+
+      img.style.borderRadius =
+        "15px";
+
+      content.appendChild(
+        img
+      );
+
+    }else if(type === "video"){
+
+      const video =
+        document.createElement(
+          "video"
+        );
+
+      video.src =
+        url;
+
+      video.controls = true;
+
+      video.playsInline = true;
+
+      video.preload =
+        "metadata";
+
+      content.appendChild(
+        video
+      );
+
+    }else{
+
+      const audio =
+        document.createElement(
+          "audio"
+        );
+
+      audio.src =
+        url;
+
+      audio.controls = true;
+
+      audio.preload =
+        "metadata";
+
+      content.appendChild(
+        audio
+      );
+    }
+
+  }catch(error){
+
+    content.innerHTML =
+      '<div class="media-only-error">❌ Xatolik: ' +
+      escapeHtml(
+        error.message
+      ) +
+      '</div>';
+  }
+}
+
+
+/* =========================
+   STORY LINK OPEN
+========================= */
+
 async function openStoryFromLink(){
 
   const params =
@@ -1673,24 +3498,56 @@ async function openStoryFromLink(){
     );
 
   const token =
-    params.get("story");
+    params.get(
+      "story"
+    );
 
-  if(!token) return;
+  if(!token)
+    return;
 
-  await openPublicStoryByToken(token);
+  await openPublicStoryByToken(
+    token
+  );
 }
 
 
-function escapeHtml(value){
+/* =========================
+   ESCAPE HTML
+========================= */
 
-  return String(value || "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+function escapeHtml(
+  value
+){
+
+  return String(
+    value || ""
+  )
+  .replaceAll(
+    "&",
+    "&amp;"
+  )
+  .replaceAll(
+    "<",
+    "&lt;"
+  )
+  .replaceAll(
+    ">",
+    "&gt;"
+  )
+  .replaceAll(
+    '"',
+    "&quot;"
+  )
+  .replaceAll(
+    "'",
+    "&#039;"
+  );
 }
 
+
+/* =========================
+   START
+========================= */
 
 checkUser();
 
