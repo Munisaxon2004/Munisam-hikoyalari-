@@ -219,10 +219,7 @@ textarea{
 
   <h2 id="writerTitle">Yangi hikoya</h2>
 
-  <input
-    id="storyTitle"
-    placeholder="Hikoya nomi"
-  >
+  <input id="storyTitle" placeholder="Hikoya nomi">
 
   <textarea
     id="storyContent"
@@ -292,29 +289,21 @@ textarea{
 </section>
 
 <section class="card">
-
   <h2>Iqtibos</h2>
-
   <div class="quote">
     “Ba’zi odamlar ketmaydi,
     shunchaki hayotingda o‘rnini yo‘qotadi.”
   </div>
-
 </section>
 
 </div>
 
-
-<!-- AUTH -->
-
 <div id="authModal" class="modal hidden">
-
   <div class="modal-box">
 
     <h2 id="authTitle">Kirish</h2>
 
     <input id="authEmail" type="email" placeholder="Email">
-
     <input id="authPassword" type="password" placeholder="Parol">
 
     <div class="row">
@@ -337,31 +326,17 @@ textarea{
     <div id="authMessage" class="message"></div>
 
   </div>
-
 </div>
 
-
-<!-- PASSWORD RECOVERY -->
-
 <div id="recoveryModal" class="modal hidden">
-
   <div class="modal-box">
 
     <h2>🔐 Yangi parol</h2>
 
     <p>Yangi parolingizni kiriting.</p>
 
-    <input
-      id="newPassword"
-      type="password"
-      placeholder="Yangi parol"
-    >
-
-    <input
-      id="newPassword2"
-      type="password"
-      placeholder="Yangi parolni qayta kiriting"
-    >
+    <input id="newPassword" type="password" placeholder="Yangi parol">
+    <input id="newPassword2" type="password" placeholder="Yangi parolni qayta kiriting">
 
     <button onclick="updatePassword()">
       Parolni saqlash
@@ -370,14 +345,9 @@ textarea{
     <div id="recoveryMessage" class="message"></div>
 
   </div>
-
 </div>
 
-
-<!-- READER -->
-
 <div id="readerModal" class="modal hidden">
-
   <div class="modal-box">
 
     <h2 id="readerTitle"></h2>
@@ -395,13 +365,9 @@ textarea{
     <button onclick="closeReader()">Yopish</button>
 
   </div>
-
 </div>
 
-
 <script>
-
-/* SUPABASE */
 
 const SUPABASE_URL =
   "https://xponjbwjrbnonkuyhtzz.supabase.co";
@@ -421,33 +387,24 @@ const supabaseClient =
   );
 
 
-/* ADMIN */
+/* ADMIN — YANGI ID */
 
 const ADMIN_ID =
-  "8c5195d6-6959-43d5-8d23-5e544222d72c";
+  "d83107c5-ac1a-49bf-a53d-7fe17f39f15b";
 
-
-/* LIMITS */
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
 
 const BUCKET = "story-media";
 
-
-/* STATE */
-
 let currentUser = null;
 let authMode = "login";
 let editingId = null;
-
 let stories = [];
-
 let editingImagePath = null;
 let editingVideoPath = null;
 
-
-/* ELEMENTS */
 
 const userInfo =
   document.getElementById("userInfo");
@@ -486,33 +443,19 @@ const existingMedia =
   document.getElementById("existingMedia");
 
 
-/* AUTH UI */
-
 function showLogin(){
   authMode = "login";
-
-  document.getElementById("authTitle").textContent =
-    "Kirish";
-
-  document.getElementById("authMessage").textContent =
-    "";
-
-  document.getElementById("authModal")
-    .classList.remove("hidden");
+  document.getElementById("authTitle").textContent = "Kirish";
+  document.getElementById("authMessage").textContent = "";
+  document.getElementById("authModal").classList.remove("hidden");
 }
 
 
 function showSignup(){
   authMode = "signup";
-
-  document.getElementById("authTitle").textContent =
-    "Ro‘yxatdan o‘tish";
-
-  document.getElementById("authMessage").textContent =
-    "";
-
-  document.getElementById("authModal")
-    .classList.remove("hidden");
+  document.getElementById("authTitle").textContent = "Ro‘yxatdan o‘tish";
+  document.getElementById("authMessage").textContent = "";
+  document.getElementById("authModal").classList.remove("hidden");
 }
 
 
@@ -526,24 +469,18 @@ function switchAuth(){
 
 
 function closeAuth(){
-  document.getElementById("authModal")
-    .classList.add("hidden");
+  document.getElementById("authModal").classList.add("hidden");
 }
 
-
-/* FORGOT PASSWORD */
 
 async function showForgotPassword(){
 
   const email =
-    document.getElementById("authEmail")
-      .value.trim();
+    document.getElementById("authEmail").value.trim();
 
   if(!email){
-    document.getElementById("authMessage")
-      .textContent =
+    document.getElementById("authMessage").textContent =
       "Avval emailingizni yozing.";
-
     return;
   }
 
@@ -556,8 +493,7 @@ async function showForgotPassword(){
   try{
 
     const {error} =
-      await supabaseClient.auth
-      .resetPasswordForEmail(
+      await supabaseClient.auth.resetPasswordForEmail(
         email,
         {
           redirectTo:
@@ -573,23 +509,18 @@ async function showForgotPassword(){
   }catch(error){
 
     message.textContent =
-      error.message ||
-      "Xatolik yuz berdi.";
+      error.message || "Xatolik yuz berdi.";
   }
 }
 
 
-/* LOGIN / SIGNUP */
-
 async function submitAuth(){
 
   const email =
-    document.getElementById("authEmail")
-      .value.trim();
+    document.getElementById("authEmail").value.trim();
 
   const password =
-    document.getElementById("authPassword")
-      .value;
+    document.getElementById("authPassword").value;
 
   const message =
     document.getElementById("authMessage");
@@ -607,8 +538,7 @@ async function submitAuth(){
     if(authMode === "signup"){
 
       const {error} =
-        await supabaseClient.auth
-        .signUp({
+        await supabaseClient.auth.signUp({
           email,
           password
         });
@@ -621,8 +551,7 @@ async function submitAuth(){
     }else{
 
       const {error} =
-        await supabaseClient.auth
-        .signInWithPassword({
+        await supabaseClient.auth.signInWithPassword({
           email,
           password
         });
@@ -635,13 +564,10 @@ async function submitAuth(){
   }catch(error){
 
     message.textContent =
-      error.message ||
-      "Xatolik yuz berdi.";
+      error.message || "Xatolik yuz berdi.";
   }
 }
 
-
-/* PASSWORD RECOVERY */
 
 async function updatePassword(){
 
@@ -677,8 +603,7 @@ async function updatePassword(){
   try{
 
     const {error} =
-      await supabaseClient.auth
-      .updateUser({
+      await supabaseClient.auth.updateUser({
         password:password
       });
 
@@ -688,12 +613,9 @@ async function updatePassword(){
       "Parol muvaffaqiyatli o‘zgartirildi ❤️";
 
     setTimeout(() => {
-
       document.getElementById("recoveryModal")
         .classList.add("hidden");
-
       checkUser();
-
     },1200);
 
   }catch(error){
@@ -704,8 +626,6 @@ async function updatePassword(){
   }
 }
 
-
-/* LOGOUT */
 
 async function logout(){
 
@@ -719,8 +639,6 @@ async function logout(){
 }
 
 
-/* AUTH STATE */
-
 supabaseClient.auth.onAuthStateChange(
   async (event,session) => {
 
@@ -728,7 +646,6 @@ supabaseClient.auth.onAuthStateChange(
       session?.user || null;
 
     if(event === "PASSWORD_RECOVERY"){
-
       document.getElementById("recoveryModal")
         .classList.remove("hidden");
     }
@@ -756,8 +673,6 @@ async function checkUser(){
 }
 
 
-/* AUTH UI */
-
 function updateAuthUI(){
 
   if(!currentUser){
@@ -782,8 +697,6 @@ function updateAuthUI(){
   writerPanel.classList.remove("hidden");
 }
 
-
-/* LOAD STORIES */
 
 async function loadStories(){
 
@@ -837,8 +750,6 @@ async function loadStories(){
 }
 
 
-/* RENDER */
-
 function renderStories(){
 
   const search =
@@ -878,11 +789,9 @@ function renderStories(){
       document.createElement("h3");
 
     title.textContent =
-      story.title ||
-      "Nomsiz hikoya";
+      story.title || "Nomsiz hikoya";
 
     div.appendChild(title);
-
 
     const date =
       document.createElement("div");
@@ -890,7 +799,6 @@ function renderStories(){
     date.className = "small";
 
     if(story.created_at){
-
       date.textContent =
         new Date(
           story.created_at
@@ -899,11 +807,9 @@ function renderStories(){
 
     div.appendChild(date);
 
-
     const locked =
       story.is_password_protected ||
       !!story.story_password_hash;
-
 
     if(locked){
 
@@ -935,26 +841,21 @@ function renderStories(){
       div.appendChild(text);
     }
 
-
     const buttons =
       document.createElement("div");
 
     buttons.className = "row";
 
-
     const open =
       document.createElement("button");
 
     open.textContent =
-      locked
-      ? "🔐 Ochish"
-      : "📖 O‘qish";
+      locked ? "🔐 Ochish" : "📖 O‘qish";
 
     open.onclick =
       () => openStory(story);
 
     buttons.appendChild(open);
-
 
     if(currentUser){
 
@@ -977,7 +878,6 @@ function renderStories(){
 
         buttons.appendChild(edit);
 
-
         const del =
           document.createElement("button");
 
@@ -990,7 +890,6 @@ function renderStories(){
         buttons.appendChild(del);
       }
     }
-
 
     if(story.is_public &&
        story.share_token){
@@ -1009,15 +908,12 @@ function renderStories(){
       buttons.appendChild(share);
     }
 
-
     div.appendChild(buttons);
 
     storiesList.appendChild(div);
   });
 }
 
-
-/* NEW STORY */
 
 function newStory(){
 
@@ -1063,12 +959,7 @@ function newStory(){
 }
 
 
-/* FILE NAME */
-
-function showFileName(
-  inputId,
-  infoId
-){
+function showFileName(inputId,infoId){
 
   const input =
     document.getElementById(inputId);
@@ -1086,38 +977,19 @@ function showFileName(
     .toFixed(2);
 
   info.textContent =
-    file.name +
-    " — " +
-    mb +
-    " MB";
+    file.name + " — " + mb + " MB";
 }
 
-
-/* SAFE FILE NAME */
-
-function safeFileName(name){
-
-  return name
-    .replace(/[^a-zA-Z0-9._-]/g,"_");
-}
-
-
-/* UPLOAD MEDIA */
 
 async function uploadMedia(file){
 
   if(!currentUser){
-    throw new Error(
-      "Avval tizimga kiring."
-    );
+    throw new Error("Avval tizimga kiring.");
   }
 
   const extension =
     file.name.includes(".")
-    ? file.name
-        .split(".")
-        .pop()
-        .toLowerCase()
+    ? file.name.split(".").pop().toLowerCase()
     : "file";
 
   const path =
@@ -1146,8 +1018,6 @@ async function uploadMedia(file){
 }
 
 
-/* DELETE MEDIA */
-
 async function deleteMedia(path){
 
   if(!path) return;
@@ -1159,7 +1029,6 @@ async function deleteMedia(path){
     .remove([path]);
 
   if(error){
-
     console.warn(
       "Media o‘chmadi:",
       error.message
@@ -1167,8 +1036,6 @@ async function deleteMedia(path){
   }
 }
 
-
-/* PUBLIC MEDIA URL */
 
 function getMediaUrl(path){
 
@@ -1184,8 +1051,6 @@ function getMediaUrl(path){
 }
 
 
-/* SAVE STORY */
-
 async function saveStory(){
 
   if(!currentUser){
@@ -1195,13 +1060,11 @@ async function saveStory(){
     return;
   }
 
-
   const title =
     storyTitle.value.trim();
 
   const content =
     storyContent.value.trim();
-
 
   if(!title || !content){
 
@@ -1211,83 +1074,67 @@ async function saveStory(){
     return;
   }
 
-
   const imageFile =
     storyImage.files[0];
 
   const videoFile =
     storyVideo.files[0];
 
-
   if(imageFile){
 
     if(!imageFile.type.startsWith("image/")){
-
       saveMessage.textContent =
         "Faqat rasm fayli tanlang.";
-
       return;
     }
 
     if(imageFile.size > MAX_IMAGE_SIZE){
-
       saveMessage.textContent =
         "❌ Rasm 10 MB dan katta bo‘lmasligi kerak.";
-
       return;
     }
   }
-
 
   if(videoFile){
 
     if(!videoFile.type.startsWith("video/")){
-
       saveMessage.textContent =
         "Faqat video fayli tanlang.";
-
       return;
     }
 
     if(videoFile.size > MAX_VIDEO_SIZE){
-
       saveMessage.textContent =
         "❌ Video 100 MB dan katta bo‘lmasligi kerak.";
-
       return;
     }
   }
 
-
   saveMessage.textContent =
     "Saqlanmoqda...";
-
 
   let uploadedImage = null;
   let uploadedVideo = null;
 
-
   try{
 
-    /* PASSWORD */
-
     let passwordHash = null;
-      if(storyPassword.value){
+
+    if(storyPassword.value){
 
       const {data,error} =
         await supabaseClient.rpc(
           "make_story_password_hash",
           {
-            p_password: storyPassword.value
+            p_password:
+              storyPassword.value
           }
         );
 
       if(error) throw error;
 
       passwordHash = data;
-    }
-
-    if(imageFile){
+    }    if(imageFile){
 
       saveMessage.textContent =
         "📸 Rasm yuklanmoqda...";
@@ -1421,8 +1268,6 @@ async function saveStory(){
 }
 
 
-/* EDIT */
-
 function editStory(story){
 
   editingId = story.id;
@@ -1463,8 +1308,6 @@ function editStory(story){
   });
 }
 
-
-/* EXISTING MEDIA */
 
 function showExistingMedia(){
 
@@ -1521,8 +1364,6 @@ function showExistingMedia(){
 }
 
 
-/* CANCEL */
-
 function cancelEdit(){
 
   editingId = null;
@@ -1548,8 +1389,6 @@ function cancelEdit(){
   saveMessage.textContent = "";
 }
 
-
-/* DELETE */
 
 async function deleteStory(story){
 
@@ -1586,8 +1425,6 @@ async function deleteStory(story){
   }
 }
 
-
-/* OPEN STORY */
 
 async function openStory(story){
 
@@ -1644,8 +1481,6 @@ async function openStory(story){
   );
 }
 
-
-/* PUBLIC STORY */
 
 async function openPublicStoryByToken(token){
 
@@ -1735,8 +1570,6 @@ async function openPublicStoryByToken(token){
 }
 
 
-/* READER */
-
 function showReader(
   title,
   content,
@@ -1805,8 +1638,6 @@ function closeReader(){
 }
 
 
-/* SHARE LINK */
-
 async function copyStoryLink(token){
 
   const url =
@@ -1834,8 +1665,6 @@ async function copyStoryLink(token){
 }
 
 
-/* OPEN STORY FROM URL */
-
 async function openStoryFromLink(){
 
   const params =
@@ -1852,8 +1681,6 @@ async function openStoryFromLink(){
 }
 
 
-/* SECURITY */
-
 function escapeHtml(value){
 
   return String(value || "")
@@ -1864,8 +1691,6 @@ function escapeHtml(value){
     .replaceAll("'","&#039;");
 }
 
-
-/* START */
 
 checkUser();
 
