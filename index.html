@@ -3,21 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Munisam hikoyalari</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
+  min-height:100vh;
   color:white;
   font-family:Arial,sans-serif;
-  min-height:100vh;
+
   background-image:
-    linear-gradient(rgba(0,0,0,.40),rgba(0,0,0,.40)),
+    linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.42)),
     url("./IMG_20260708_133902_971.jpg");
+
   background-size:cover;
   background-position:center;
   background-attachment:fixed;
@@ -46,15 +51,18 @@ h1{
   padding:20px;
 }
 
-.box,.story,.reader{
-  background:rgba(0,0,0,.60);
+.box,
+.story,
+.reader{
+  background:rgba(0,0,0,.65);
   border-radius:18px;
   padding:20px;
   margin-bottom:18px;
   backdrop-filter:blur(5px);
 }
 
-input,textarea{
+input,
+textarea{
   width:100%;
   padding:13px;
   margin:7px 0;
@@ -106,18 +114,592 @@ button{
   line-height:1.7;
 }
 
+.story-title{
+  margin-top:0;
+}
+
 .public-label{
   display:flex;
   align-items:center;
   gap:8px;
-  margin-top:8px;
+  margin-top:10px;
 }
 
 .public-label input{
   width:auto;
 }
 
-.media-preview img,
-.media-preview video{
-  max-width:100%;
-  border-radius:12px
+.quote{
+  font-style:italic;
+  line-height:1.6;
+  text-align:center;
+}
+
+.status{
+  padding:10px;
+  border-radius:10px;
+  background:rgba(255,255,255,.12);
+  margin-top:10px;
+}
+
+hr{
+  border:0;
+  border-top:1px solid rgba(255,255,255,.2);
+  margin:20px 0;
+}
+
+a{
+  color:white;
+}
+
+footer{
+  text-align:center;
+  padding:25px;
+  opacity:.7;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Munisam hikoyalari</h1>
+  <div class="subtitle">
+    Bu yerda mening hikoyalarim yashaydi. ❤️
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- QIDIRUV -->
+  <div class="box">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="🔎 Hikoya qidirish..."
+      oninput="searchStories()"
+    >
+  </div>
+
+  <!-- AUTH -->
+  <div class="box">
+
+    <h2>👤 Hisob</h2>
+
+    <div id="loggedOut">
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Parol"
+      >
+
+      <button class="primary" onclick="login()">
+        Kirish
+      </button>
+
+      <button class="dark" onclick="register()">
+        Ro‘yxatdan o‘tish
+      </button>
+
+      <div class="small">
+        Hikoyalarni o‘qish uchun ro‘yxatdan o‘tish shart emas.
+        Hikoya qo‘shish uchun hisob kerak.
+      </div>
+
+    </div>
+
+    <div id="loggedIn" class="hidden">
+
+      <div>
+        👋 <b id="userEmail"></b>
+      </div>
+
+      <button class="dark" onclick="logout()">
+        Chiqish
+      </button>
+
+    </div>
+
+    <div id="authStatus" class="status hidden"></div>
+
+  </div>
+
+
+  <!-- YANGI HIKOYA -->
+  <div id="writerBox" class="box hidden">
+
+    <h2 id="formTitle">✍️ Yangi hikoya</h2>
+
+    <input
+      id="storyTitle"
+      type="text"
+      placeholder="Hikoya nomi"
+    >
+
+    <textarea
+      id="storyContent"
+      placeholder="Hikoyangizni shu yerga yozing..."
+    ></textarea>
+
+    <label class="public-label">
+      <input
+        id="isPublic"
+        type="checkbox"
+      >
+      Ommaga ko‘rinsin
+    </label>
+
+    <input
+      id="storyPassword"
+      type="password"
+      placeholder="Maxsus parol (ixtiyoriy)"
+    >
+
+    <div class="small">
+      Parol qo‘yilsa, hikoyani o‘qish uchun shu parol kerak bo‘ladi.
+    </div>
+
+    <button class="primary" onclick="saveStory()">
+      💾 Saqlash
+    </button>
+
+    <button class="dark" onclick="cancelEdit()">
+      Bekor qilish
+    </button>
+
+    <input
+      id="editingId"
+      type="hidden"
+    >
+
+  </div>
+
+
+  <!-- HIKOYA QO‘SHISH -->
+  <div id="addButtonBox" class="box hidden">
+
+    <button class="primary" onclick="newStory()">
+      ＋ Yangi hikoya
+    </button>
+
+  </div>
+
+
+  <!-- HIKOYA O‘QISH -->
+  <div id="reader" class="reader hidden">
+
+    <h2 id="readerTitle"></h2>
+
+    <div
+      id="readerContent"
+      class="story-content"
+    ></div>
+
+    <div id="readerDate" class="small"></div>
+
+    <div id="readerShare"></div>
+
+    <button class="dark" onclick="closeReader()">
+      ← Orqaga
+    </button>
+
+  </div>
+
+
+  <!-- HIKOYALAR -->
+  <div id="storiesBox">
+
+    <div class="box">
+      <h2>📖 Hikoyalar</h2>
+      <div id="storiesList">
+        Yuklanmoqda...
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- IQTIBOS -->
+  <div class="box">
+
+    <h2>💭 Iqtibos</h2>
+
+    <div class="quote">
+      “Ba’zi odamlar ketmaydi,
+      shunchaki hayotingda o‘rnini yo‘qotadi.”
+    </div>
+
+  </div>
+
+</div>
+
+<footer>
+  © Munisam hikoyalari ❤️
+</footer>
+
+
+<script>
+
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+  "https://xponjbwjrbnonkuyhtzz.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_DSnyIy3Xp3w_Yn1CwaheXA_Gl6-bFon";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================================
+   O‘ZGARUVCHILAR
+========================================= */
+
+let currentUser = null;
+let allStories = [];
+let editingStoryId = null;
+
+
+/* =========================================
+   ELEMENTLAR
+========================================= */
+
+const loggedOut =
+  document.getElementById("loggedOut");
+
+const loggedIn =
+  document.getElementById("loggedIn");
+
+const writerBox =
+  document.getElementById("writerBox");
+
+const addButtonBox =
+  document.getElementById("addButtonBox");
+
+const userEmail =
+  document.getElementById("userEmail");
+
+const storiesList =
+  document.getElementById("storiesList");
+
+const reader =
+  document.getElementById("reader");
+
+const storiesBox =
+  document.getElementById("storiesBox");
+
+
+/* =========================================
+   AUTH HOLATINI TEKSHIRISH
+========================================= */
+
+async function checkUser(){
+
+  const {
+    data,
+    error
+  } = await supabaseClient.auth.getUser();
+
+  if(error){
+    console.log(error);
+  }
+
+  currentUser = data?.user || null;
+
+  updateAuthUI();
+
+  await loadStories();
+
+  openStoryFromLink();
+}
+
+
+/* =========================================
+   AUTH UI
+========================================= */
+
+function updateAuthUI(){
+
+  if(currentUser){
+
+    loggedOut.classList.add("hidden");
+    loggedIn.classList.remove("hidden");
+
+    writerBox.classList.remove("hidden");
+    addButtonBox.classList.remove("hidden");
+
+    userEmail.textContent =
+      currentUser.email || "Foydalanuvchi";
+
+  }else{
+
+    loggedOut.classList.remove("hidden");
+    loggedIn.classList.add("hidden");
+
+    writerBox.classList.add("hidden");
+    addButtonBox.classList.add("hidden");
+
+  }
+}
+
+
+/* =========================================
+   RO‘YXATDAN O‘TISH
+========================================= */
+
+async function register(){
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  if(!email || !password){
+
+    showAuthStatus(
+      "Email va parolni kiriting."
+    );
+
+    return;
+  }
+
+  if(password.length < 6){
+
+    showAuthStatus(
+      "Parol kamida 6 ta belgidan iborat bo‘lsin."
+    );
+
+    return;
+  }
+
+  const {
+    error
+  } = await supabaseClient.auth.signUp({
+    email:email,
+    password:password
+  });
+
+  if(error){
+
+    showAuthStatus(error.message);
+
+    return;
+  }
+
+  showAuthStatus(
+    "Ro‘yxatdan o‘tish muvaffaqiyatli. Emailingizni tasdiqlash kerak bo‘lishi mumkin."
+  );
+}
+
+
+/* =========================================
+   KIRISH
+========================================= */
+
+async function login(){
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  if(!email || !password){
+
+    showAuthStatus(
+      "Email va parolni kiriting."
+    );
+
+    return;
+  }
+
+  const {
+    error
+  } = await supabaseClient.auth.signInWithPassword({
+    email:email,
+    password:password
+  });
+
+  if(error){
+
+    showAuthStatus(error.message);
+
+    return;
+  }
+
+  showAuthStatus(
+    "Muvaffaqiyatli kirdingiz ❤️"
+  );
+}
+
+
+/* =========================================
+   CHIQISH
+========================================= */
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  currentUser = null;
+
+  updateAuthUI();
+
+  await loadStories();
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+function showAuthStatus(message){
+
+  const box =
+    document.getElementById("authStatus");
+
+  box.textContent = message;
+
+  box.classList.remove("hidden");
+
+}
+
+
+/* =========================================
+   HIKOYALARNI YUKLASH
+========================================= */
+
+async function loadStories(){
+
+  storiesList.innerHTML =
+    "Yuklanmoqda...";
+
+  let result;
+
+  if(currentUser){
+
+    /*
+      Kirgan foydalanuvchi uchun stories jadvalidan
+      RLS qaysi hikoyalarni ko‘rishga ruxsat bersa,
+      o‘shalar chiqadi.
+    */
+
+    result =
+      await supabaseClient
+        .from("stories")
+        .select("*")
+        .order("created_at", {
+          ascending:false
+        });
+
+  }else{
+
+    /*
+      Kirishsiz odamlar faqat public_stories
+      view orqali ommaviy hikoyalarni ko‘radi.
+    */
+
+    result =
+      await supabaseClient
+        .from("public_stories")
+        .select("*")
+        .order("created_at", {
+          ascending:false
+        });
+
+  }
+
+  if(result.error){
+
+    console.error(result.error);
+
+    storiesList.innerHTML = `
+      <div class="small">
+        Hozircha hikoyalarni yuklab bo‘lmadi.
+      </div>
+    `;
+
+    return;
+  }
+
+  allStories =
+    result.data || [];
+
+  renderStories(allStories);
+}
+
+
+/* =========================================
+   HIKOYALARNI CHIQARISH
+========================================= */
+
+function renderStories(stories){
+
+  if(!stories.length){
+
+    storiesList.innerHTML = `
+      <div class="small">
+        Hozircha ko‘rinadigan hikoya yo‘q.
+      </div>
+    `;
+
+    return;
+  }
+
+  storiesList.innerHTML = "";
+
+  stories.forEach(story => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "story";
+
+    const title =
+      document.createElement("h3");
+
+    title.className = "story-title";
+
+    title.textContent =
+      story.title || "Nomsiz hikoya";
+
+
+    const preview =
+      document.createElement("div");
+
+    preview.className =
+      "small";
+
+    let text =
+      story.content || "";
+
+    if(text.length > 180){
+      text =
+        text.substring(0,180) + "...";
+    }
+
+    preview.textContent = text;
+
+
+    const readButton =
+      document.createElement("button");
+
+    readButton.className =
+      "primary";
+
+    readButton.textContent =
+      story.story
