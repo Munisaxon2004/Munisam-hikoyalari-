@@ -9,24 +9,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
   min-height:100vh;
   color:white;
   font-family:Arial,sans-serif;
-
   background-image:
-    linear-gradient(rgba(0,0,0,.48),rgba(0,0,0,.48)),
+    linear-gradient(rgba(0,0,0,.50),rgba(0,0,0,.50)),
     url("./IMG_20260708_133902_971.jpg");
-
   background-size:cover;
   background-position:center;
   background-attachment:fixed;
-  background-repeat:no-repeat;
 }
 
 header{
@@ -45,27 +40,49 @@ h1{
   opacity:.9;
 }
 
+nav{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:10px;
+}
+
+button{
+  border:0;
+  border-radius:12px;
+  padding:11px 16px;
+  cursor:pointer;
+  font-weight:bold;
+  background:rgba(255,255,255,.9);
+  color:#222;
+}
+
+button:hover{
+  opacity:.85;
+}
+
 .container{
-  width:min(900px,94%);
+  width:min(1000px,94%);
   margin:auto;
-  padding-bottom:50px;
 }
 
-.panel{
-  background:rgba(0,0,0,.58);
+.card{
+  background:rgba(0,0,0,.55);
   backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.2);
   border-radius:18px;
-  padding:18px;
+  padding:20px;
   margin:15px 0;
-  box-shadow:0 5px 25px rgba(0,0,0,.3);
+  box-shadow:0 5px 25px rgba(0,0,0,.25);
 }
 
-input,textarea,button{
+input,textarea{
   width:100%;
   padding:12px;
-  border-radius:10px;
+  margin:7px 0;
   border:0;
-  margin:6px 0;
+  border-radius:10px;
   font-size:15px;
 }
 
@@ -74,40 +91,16 @@ textarea{
   resize:vertical;
 }
 
-button{
-  cursor:pointer;
-  background:white;
-  color:#111;
-  font-weight:bold;
-}
-
-button:hover{
-  opacity:.85;
-}
-
-.row{
-  display:flex;
-  gap:8px;
-}
-
-.row button{
-  flex:1;
-}
-
 .story{
-  background:rgba(0,0,0,.62);
-  border-radius:16px;
-  padding:17px;
   margin:12px 0;
+  padding:16px;
+  border-radius:15px;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.15);
 }
 
 .story h3{
   margin-top:0;
-}
-
-.story-content{
-  white-space:pre-wrap;
-  line-height:1.6;
 }
 
 .small{
@@ -119,47 +112,59 @@ button:hover{
   display:none!important;
 }
 
+.message{
+  margin:10px 0;
+  font-weight:bold;
+}
+
 .quote{
+  font-size:20px;
+  line-height:1.5;
   text-align:center;
-  font-style:italic;
-  line-height:1.6;
 }
 
-.error{
-  color:#ffb3b3;
-}
-
-.success{
-  color:#b9ffbf;
-}
-
-#reader{
+.modal{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.94);
-  z-index:20;
-  overflow:auto;
-  padding:25px 15px;
+  background:rgba(0,0,0,.8);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:100;
 }
 
-.reader-box{
-  max-width:800px;
-  margin:auto;
-  background:#111;
-  border-radius:18px;
+.modal-box{
+  width:min(700px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#181818;
+  border-radius:20px;
   padding:25px;
 }
 
-.reader-box h2{
-  margin-top:0;
+.reader-content{
+  white-space:pre-wrap;
+  line-height:1.7;
 }
 
-#authStatus{
-  text-align:center;
+.search{
+  margin-bottom:15px;
 }
 
 .lock{
-  font-size:22px;
+  font-size:14px;
+  opacity:.8;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.row button{
+  flex:0 0 auto;
 }
 </style>
 </head>
@@ -168,82 +173,42 @@ button:hover{
 
 <header>
   <h1>Munisam hikoyalari</h1>
-  <div class="subtitle">
-    Bu yerda mening hikoyalarim yashaydi. ❤️
-  </div>
+  <div class="subtitle">Bu yerda mening hikoyalarim yashaydi. ❤️</div>
 </header>
+
+<nav>
+  <button onclick="showLogin()">Kirish</button>
+  <button onclick="showSignup()">Ro‘yxatdan o‘tish</button>
+  <button onclick="newStory()">+ Hikoya yozish</button>
+  <button onclick="logout()">Chiqish</button>
+</nav>
 
 <div class="container">
 
-  <!-- AUTH -->
-  <div class="panel">
-    <div id="authStatus">
-      <b>Mehmon</b>
-      <div class="small">
-        Hikoyalarni o‘qish uchun kirish shart emas.
-      </div>
-    </div>
+  <section class="card">
+    <h2>Hisob</h2>
+    <div id="userInfo">Mehmon sifatida kirdingiz.</div>
+  </section>
 
-    <div id="authButtons" class="row">
-      <button onclick="showLogin()">Kirish</button>
-      <button onclick="showSignup()">Ro‘yxatdan o‘tish</button>
-    </div>
-
-    <button id="logoutBtn"
-            class="hidden"
-            onclick="logout()">
-      Chiqish
-    </button>
-  </div>
-
-  <!-- AUTH FORM -->
-  <div id="authForm" class="panel hidden">
-
-    <h3 id="authTitle">Kirish</h3>
+  <section class="card">
+    <h2>Hikoyalar</h2>
 
     <input
-      id="email"
-      type="email"
-      placeholder="Email"
-    >
-
-    <input
-      id="password"
-      type="password"
-      placeholder="Parol"
-    >
-
-    <button onclick="submitAuth()">
-      Davom etish
-    </button>
-
-    <button onclick="closeAuth()">
-      Bekor qilish
-    </button>
-
-    <div id="authMessage"></div>
-
-  </div>
-
-  <!-- SEARCH -->
-  <div class="panel">
-    <input
-      id="search"
-      type="search"
-      placeholder="🔎 Hikoya qidirish..."
+      class="search"
+      id="searchInput"
+      placeholder="Hikoya qidirish..."
       oninput="renderStories()"
     >
-  </div>
 
-  <!-- ADD STORY -->
-  <div id="writerPanel" class="panel hidden">
+    <div id="storiesList">
+      Yuklanmoqda...
+    </div>
+  </section>
 
-    <h3>✍️ Yangi hikoya</h3>
+  <section class="card hidden" id="writerPanel">
+    <h2 id="writerTitle">Yangi hikoya</h2>
 
-    <input
-      id="storyTitle"
-      placeholder="Hikoya nomi"
-    >
+    <input id="storyTitle" placeholder="Hikoya nomi">
 
     <textarea
       id="storyContent"
@@ -251,13 +216,11 @@ button:hover{
     ></textarea>
 
     <label>
-      <input
-        id="isPublic"
-        type="checkbox"
-        style="width:auto"
-      >
-      Ommaga ko‘rsatish
+      <input type="checkbox" id="isPublic">
+      Ommaga ochiq bo‘lsin
     </label>
+
+    <br><br>
 
     <input
       id="storyPassword"
@@ -265,61 +228,82 @@ button:hover{
       placeholder="Parol (ixtiyoriy)"
     >
 
-    <button onclick="saveStory()">
-      💾 Hikoyani saqlash
-    </button>
-
-    <button
-      id="cancelEditBtn"
-      class="hidden"
-      onclick="cancelEdit()">
-      Bekor qilish
-    </button>
-
-    <div id="saveMessage"></div>
-
-  </div>
-
-  <!-- STORIES -->
-  <div class="panel">
-
-    <h2>📖 Hikoyalar</h2>
-
-    <div id="stories">
-      Yuklanmoqda...
+    <div class="small">
+      Parol qo‘ysangiz, hikoyani ochish uchun parol kerak bo‘ladi.
     </div>
 
-  </div>
+    <br>
 
-  <!-- QUOTE -->
-  <div class="panel quote">
-    <h2>💭 Iqtibos</h2>
-    <p>
+    <div class="row">
+      <button onclick="saveStory()">Saqlash</button>
+      <button onclick="cancelEdit()">Bekor qilish</button>
+    </div>
+
+    <div id="saveMessage" class="message"></div>
+  </section>
+
+  <section class="card">
+    <h2>Iqtibos</h2>
+
+    <div class="quote">
       “Ba’zi odamlar ketmaydi,
       shunchaki hayotingda o‘rnini yo‘qotadi.”
-    </p>
-  </div>
+    </div>
+  </section>
 
 </div>
 
+<!-- AUTH -->
+
+<div id="authModal" class="modal hidden">
+  <div class="modal-box">
+
+    <h2 id="authTitle">Kirish</h2>
+
+    <input
+      id="authEmail"
+      type="email"
+      placeholder="Email"
+    >
+
+    <input
+      id="authPassword"
+      type="password"
+      placeholder="Parol"
+    >
+
+    <div class="row">
+      <button onclick="submitAuth()">Davom etish</button>
+      <button onclick="closeAuth()">Yopish</button>
+    </div>
+
+    <br>
+
+    <button onclick="switchAuth()">Kirish / Ro‘yxatdan o‘tish</button>
+
+    <div id="authMessage" class="message"></div>
+
+  </div>
+</div>
+
 <!-- READER -->
-<div id="reader" class="hidden">
 
-  <div class="reader-box">
-
-    <button onclick="closeReader()">
-      ✕ Yopish
-    </button>
+<div id="readerModal" class="modal hidden">
+  <div class="modal-box">
 
     <h2 id="readerTitle"></h2>
 
-    <div
-      id="readerContent"
-      class="story-content">
-    </div>
+    <div id="readerDate" class="small"></div>
+
+    <hr>
+
+    <div id="readerContent" class="reader-content"></div>
+
+    <br>
+
+    <button onclick="closeReader()">Yopish</button>
 
   </div>
-
 </div>
 
 <script>
@@ -329,26 +313,66 @@ button:hover{
 ========================= */
 
 const SUPABASE_URL =
-"https://xponjbwjrbnonkuyhtzz.supabase.co";
+  "https://xponjbwjrbnonkuyhtzz.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_DSnyIy3Xp3w_Yn1CwaheXA_Gl6-bFon";
+  "sb_publishable_DSnyIy3Xp3w_Yn1CwaheXA_Gl6-bFon";
 
 const supabaseClient =
-window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
 /* =========================
-   VARIABLES
+   ADMIN
+========================= */
+
+const ADMIN_ID =
+  "8c5195d6-6959-43d5-8d23-5e544222d72c";
+
+
+/* =========================
+   STATE
 ========================= */
 
 let currentUser = null;
-let stories = [];
-let editingId = null;
 let authMode = "login";
+let editingId = null;
+let stories = [];
+
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const userInfo =
+  document.getElementById("userInfo");
+
+const storiesList =
+  document.getElementById("storiesList");
+
+const writerPanel =
+  document.getElementById("writerPanel");
+
+const writerTitle =
+  document.getElementById("writerTitle");
+
+const storyTitle =
+  document.getElementById("storyTitle");
+
+const storyContent =
+  document.getElementById("storyContent");
+
+const storyPassword =
+  document.getElementById("storyPassword");
+
+const isPublic =
+  document.getElementById("isPublic");
+
+const saveMessage =
+  document.getElementById("saveMessage");
 
 
 /* =========================
@@ -356,121 +380,121 @@ let authMode = "login";
 ========================= */
 
 function showLogin(){
-
   authMode = "login";
 
-  document.getElementById("authForm")
+  document.getElementById("authTitle").textContent =
+    "Kirish";
+
+  document.getElementById("authMessage").textContent =
+    "";
+
+  document.getElementById("authModal")
     .classList.remove("hidden");
-
-  document.getElementById("authTitle")
-    .textContent = "Kirish";
-
-  document.getElementById("authMessage")
-    .textContent = "";
-
 }
+
 
 function showSignup(){
-
   authMode = "signup";
 
-  document.getElementById("authForm")
+  document.getElementById("authTitle").textContent =
+    "Ro‘yxatdan o‘tish";
+
+  document.getElementById("authMessage").textContent =
+    "";
+
+  document.getElementById("authModal")
     .classList.remove("hidden");
+}
 
-  document.getElementById("authTitle")
-    .textContent = "Ro‘yxatdan o‘tish";
 
-  document.getElementById("authMessage")
-    .textContent = "";
+function switchAuth(){
+
+  if(authMode === "login"){
+    showSignup();
+  }else{
+    showLogin();
+  }
 
 }
+
 
 function closeAuth(){
 
-  document.getElementById("authForm")
+  document.getElementById("authModal")
     .classList.add("hidden");
 
 }
 
 
-/* =========================
-   AUTH
-========================= */
-
 async function submitAuth(){
 
   const email =
-    document.getElementById("email").value.trim();
+    document.getElementById("authEmail").value.trim();
 
   const password =
-    document.getElementById("password").value;
+    document.getElementById("authPassword").value;
 
-  const msg =
+  const message =
     document.getElementById("authMessage");
+
+  message.textContent = "";
 
   if(!email || !password){
 
-    msg.innerHTML =
-      '<p class="error">Email va parolni kiriting.</p>';
+    message.textContent =
+      "Email va parolni kiriting.";
 
     return;
   }
 
-  msg.textContent = "Kutib turing...";
+  try{
 
-  let result;
+    if(authMode === "signup"){
 
-  if(authMode === "signup"){
+      const { error } =
+        await supabaseClient.auth.signUp({
+          email,
+          password
+        });
 
-    result =
-      await supabaseClient.auth.signUp({
-        email,
-        password
-      });
+      if(error) throw error;
 
-  }else{
+      message.textContent =
+        "Ro‘yxatdan o‘tildi. Emailni tasdiqlash kerak bo‘lishi mumkin.";
 
-    result =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
+    }else{
 
-  }
+      const { error } =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
 
-  if(result.error){
+      if(error) throw error;
 
-    msg.innerHTML =
-      '<p class="error">' +
-      result.error.message +
-      '</p>';
+      closeAuth();
 
-    return;
-  }
+    }
 
-  if(authMode === "signup"){
+  }catch(error){
 
-    msg.innerHTML =
-      '<p class="success">' +
-      "Ro‘yxatdan o‘tish muvaffaqiyatli. Emailingizni tasdiqlash kerak bo‘lishi mumkin." +
-      '</p>';
-
-  }else{
-
-    closeAuth();
+    message.textContent =
+      error.message || "Xatolik yuz berdi.";
 
   }
 
 }
 
 
-/* =========================
-   LOGOUT
-========================= */
-
 async function logout(){
 
   await supabaseClient.auth.signOut();
+
+  currentUser = null;
+
+  updateAuthUI();
+
+  await loadStories();
 
 }
 
@@ -480,10 +504,10 @@ async function logout(){
 ========================= */
 
 supabaseClient.auth.onAuthStateChange(
-  async function(event, session){
+  async (_event, session) => {
 
     currentUser =
-      session ? session.user : null;
+      session?.user || null;
 
     updateAuthUI();
 
@@ -493,51 +517,43 @@ supabaseClient.auth.onAuthStateChange(
 );
 
 
-/* =========================
-   AUTH UI UPDATE
-========================= */
+async function checkUser(){
+
+  const { data } =
+    await supabaseClient.auth.getSession();
+
+  currentUser =
+    data.session?.user || null;
+
+  updateAuthUI();
+
+  await loadStories();
+
+}
+
 
 function updateAuthUI(){
 
-  const status =
-    document.getElementById("authStatus");
+  if(!currentUser){
 
-  const buttons =
-    document.getElementById("authButtons");
+    userInfo.textContent =
+      "Mehmon sifatida kirdingiz.";
 
-  const logoutButton =
-    document.getElementById("logoutBtn");
+    writerPanel.classList.add("hidden");
 
-  const writer =
-    document.getElementById("writerPanel");
-
-  if(currentUser){
-
-    status.innerHTML =
-      "<b>👤 " +
-      escapeHtml(currentUser.email || "Foydalanuvchi") +
-      "</b>" +
-      '<div class="small">Kirish amalga oshirildi.</div>';
-
-    buttons.classList.add("hidden");
-
-    logoutButton.classList.remove("hidden");
-
-    writer.classList.remove("hidden");
-
-  }else{
-
-    status.innerHTML =
-      "<b>Mehmon</b>" +
-      '<div class="small">Hikoyalarni o‘qish uchun kirish shart emas.</div>';
-
-    buttons.classList.remove("hidden");
-
-    logoutButton.classList.add("hidden");
-
-    writer.classList.add("hidden");
-
+    return;
   }
+
+  const isAdmin =
+    currentUser.id === ADMIN_ID;
+
+  userInfo.innerHTML =
+    "Kirdingiz: <b>" +
+    escapeHtml(currentUser.email || "") +
+    "</b>" +
+    (isAdmin ? " 👑 Admin" : "");
+
+  writerPanel.classList.remove("hidden");
 
 }
 
@@ -548,48 +564,53 @@ function updateAuthUI(){
 
 async function loadStories(){
 
-  let result;
+  storiesList.innerHTML =
+    "Yuklanmoqda...";
 
-  if(currentUser){
+  try{
 
-    result =
-      await supabaseClient
-        .from("stories")
-        .select("*")
-        .order("created_at", {
-          ascending:false
-        });
+    if(currentUser){
 
-  }else{
+      const { data, error } =
+        await supabaseClient
+          .from("stories")
+          .select("*")
+          .order("created_at", {
+            ascending:false
+          });
 
-    result =
-      await supabaseClient
-        .from("public_stories")
-        .select("*")
-        .order("created_at", {
-          ascending:false
-        });
+      if(error) throw error;
 
-  }
+      stories = data || [];
 
-  if(result.error){
+    }else{
 
-    console.error(result.error);
+      const { data, error } =
+        await supabaseClient
+          .from("public_stories")
+          .select("*")
+          .order("created_at", {
+            ascending:false
+          });
 
-    stories = [];
+      if(error) throw error;
 
-    document.getElementById("stories").innerHTML =
-      '<p class="error">' +
-      "Hikoyalarni yuklashda xatolik yuz berdi." +
+      stories = data || [];
+
+    }
+
+    renderStories();
+
+  }catch(error){
+
+    console.error(error);
+
+    storiesList.innerHTML =
+      "<p>Hikoyalarni yuklashda xatolik: " +
+      escapeHtml(error.message) +
       "</p>";
 
-    return;
-
   }
-
-  stories = result.data || [];
-
-  renderStories();
 
 }
 
@@ -600,113 +621,175 @@ async function loadStories(){
 
 function renderStories(){
 
-  const box =
-    document.getElementById("stories");
-
   const search =
-    document.getElementById("search")
+    document.getElementById("searchInput")
       .value
       .toLowerCase()
       .trim();
 
-  let list =
-     [];
+  let filtered =
+    stories.filter(story => {
 
-  if(search){
+      const title =
+        String(story.title || "")
+          .toLowerCase();
 
-    list =
-      stories.filter(function(story){
+      return title.includes(search);
 
-        return (
-          (story.title || "")
-            .toLowerCase()
-            .includes(search)
-          ||
-          (story.content || "")
-            .toLowerCase()
-            .includes(search)
-        );
+    });
 
-      });
+  if(filtered.length === 0){
 
-  }else{
-
-    list = stories;
-
-  }
-
-  if(!list.length){
-
-    box.innerHTML =
-      '<p class="small">Hozircha hikoya yo‘q.</p>';
+    storiesList.innerHTML =
+      "<p>Hikoyalar topilmadi.</p>";
 
     return;
 
   }
 
-  box.innerHTML =
-    list.map(function(story){
+  storiesList.innerHTML = "";
 
-      const locked =
-        story.story_password_hash ||
-        story.is_password_protected;
+  filtered.forEach(story => {
 
-      return `
-        <div class="story">
+    const div =
+      document.createElement("div");
 
-          <h3>
-            ${locked ? "🔐 " : ""}
-            ${escapeHtml(story.title || "Nomsiz hikoya")}
-          </h3>
+    div.className = "story";
 
-          <div class="small">
-            ${story.created_at
-              ? new Date(story.created_at)
-                  .toLocaleString("uz-UZ")
-              : ""}
-          </div>
+    const title =
+      document.createElement("h3");
 
-          ${
-            locked
-            ?
-            `<p>🔐 Bu hikoya parol bilan himoyalangan.</p>`
-            :
-            `<div class="story-content">
-              ${escapeHtml(story.content || "")}
-            </div>`
-          }
+    title.textContent =
+      story.title || "Nomsiz hikoya";
 
-          <div class="row">
+    div.appendChild(title);
 
-            <button
-              onclick="openStory(${JSON.stringify(story).replace(/"/g,'&quot;')})">
-              📖 O‘qish
-            </button>
 
-            ${
-              currentUser
-              ?
-              `
-              <button
-                onclick="editStory(${JSON.stringify(story).replace(/"/g,'&quot;')})">
-                ✏️
-              </button>
+    const date =
+      document.createElement("div");
 
-              <button
-                onclick="deleteStory(${JSON.stringify(story).replace(/"/g,'&quot;')})">
-                🗑
-              </button>
-              `
-              :
-              ""
-            }
+    date.className = "small";
 
-          </div>
+    if(story.created_at){
 
-        </div>
-      `;
+      date.textContent =
+        new Date(story.created_at)
+          .toLocaleString("uz-UZ");
 
-    }).join("");
+    }
+
+    div.appendChild(date);
+
+
+    const locked =
+      story.is_password_protected ||
+      !!story.story_password_hash;
+
+    if(locked){
+
+      const lock =
+        document.createElement("div");
+
+      lock.className = "lock";
+
+      lock.textContent =
+        "🔐 Parol bilan himoyalangan";
+
+      div.appendChild(lock);
+
+    }else{
+
+      const text =
+        document.createElement("p");
+
+      text.textContent =
+        story.content
+          ? story.content.slice(0,180) +
+            (story.content.length > 180 ? "..." : "")
+          : "";
+
+      div.appendChild(text);
+
+    }
+
+
+    const buttons =
+      document.createElement("div");
+
+    buttons.className = "row";
+
+
+    const open =
+      document.createElement("button");
+
+    open.textContent =
+      locked ? "🔐 Ochish" : "📖 O‘qish";
+
+    open.onclick =
+      () => openStory(story);
+
+    buttons.appendChild(open);
+
+
+    if(currentUser){
+
+      const owner =
+        story.owner_id === currentUser.id;
+
+      const admin =
+        currentUser.id === ADMIN_ID;
+
+      if(owner || admin){
+
+        const edit =
+          document.createElement("button");
+
+        edit.textContent =
+          "✏️ Tahrirlash";
+
+        edit.onclick =
+          () => editStory(story);
+
+        buttons.appendChild(edit);
+
+
+        const del =
+          document.createElement("button");
+
+        del.textContent =
+          "🗑 O‘chirish";
+
+        del.onclick =
+          () => deleteStory(story);
+
+        buttons.appendChild(del);
+
+      }
+
+    }
+
+
+    if(story.is_public && story.share_token){
+
+      const share =
+        document.createElement("button");
+
+      share.textContent =
+        "🔗 Havola";
+
+      share.onclick =
+        () => copyStoryLink(story.share_token);
+
+      buttons.appendChild(share);
+
+    }
+
+
+    div.appendChild(buttons);
+
+    storiesList.appendChild(div);
+
+  });
 
 }
 
@@ -717,141 +800,166 @@ function renderStories(){
 
 function newStory(){
 
+  if(!currentUser){
+
+    alert(
+      "Hikoya yozish uchun avval tizimga kiring."
+    );
+
+    showLogin();
+
+    return;
+
+  }
+
   editingId = null;
 
-  document.getElementById("storyTitle").value = "";
-  document.getElementById("storyContent").value = "";
-  document.getElementById("storyPassword").value = "";
-  document.getElementById("isPublic").checked = false;
+  writerTitle.textContent =
+    "Yangi hikoya";
 
-  document.getElementById("cancelEditBtn")
-    .classList.add("hidden");
+  storyTitle.value = "";
 
-  document.getElementById("saveMessage")
-    .textContent = "";
+  storyContent.value = "";
+
+  storyPassword.value = "";
+
+  isPublic.checked = true;
+
+  saveMessage.textContent = "";
+
+  writerPanel.classList.remove("hidden");
+
+  window.scrollTo({
+    top:document.body.scrollHeight,
+    behavior:"smooth"
+  });
 
 }
 
 
 /* =========================
-   SAVE STORY
+   SAVE
 ========================= */
 
 async function saveStory(){
 
   if(!currentUser){
 
-    alert("Avval akkauntga kiring.");
+    alert("Avval tizimga kiring.");
 
     return;
 
   }
 
   const title =
-    document.getElementById("storyTitle")
-      .value.trim();
+    storyTitle.value.trim();
 
   const content =
-    document.getElementById("storyContent")
-      .value.trim();
-
-  const isPublic =
-    document.getElementById("isPublic")
-      .checked;
-
-  const password =
-    document.getElementById("storyPassword")
-      .value;
-
-  const msg =
-    document.getElementById("saveMessage");
+    storyContent.value.trim();
 
   if(!title || !content){
 
-    msg.innerHTML =
-      '<p class="error">Hikoya nomi va matnini kiriting.</p>';
+    saveMessage.textContent =
+      "Hikoya nomi va matnini kiriting.";
 
     return;
 
   }
 
-  msg.textContent = "Saqlanmoqda...";
+  saveMessage.textContent =
+    "Saqlanmoqda...";
 
-  let passwordHash = null;
+  try{
 
-  if(password){
+    let passwordHash = null;
 
-    const hashResult =
-      await supabaseClient.rpc(
-        "make_story_password_hash",
-        {
-          p_password: password
-        }
-      );
+    if(storyPassword.value){
 
-    if(hashResult.error){
+      const { data, error } =
+        await supabaseClient.rpc(
+          "make_story_password_hash",
+          {
+            p_password:
+              storyPassword.value
+          }
+        );
 
-      msg.innerHTML =
-        '<p class="error">' +
-        hashResult.error.message +
-        '</p>';
+      if(error) throw error;
 
-      return;
+      passwordHash = data;
 
     }
 
-    passwordHash = hashResult.data;
+
+    if(editingId){
+
+      const updateData = {
+        title,
+        content,
+        is_public:isPublic.checked
+      };
+
+      if(storyPassword.value){
+        updateData.story_password_hash =
+          passwordHash;
+      }
+
+      const { error } =
+        await supabaseClient
+          .from("stories")
+          .update(updateData)
+          .eq("id", editingId);
+
+      if(error) throw error;
+
+      saveMessage.textContent =
+        "Hikoya yangilandi ❤️";
+
+    }else{
+
+      const { error } =
+        await supabaseClient
+          .from("stories")
+          .insert({
+            title,
+            content,
+            owner_id:currentUser.id,
+            is_public:isPublic.checked,
+            story_password_hash:passwordHash
+          });
+
+      if(error) throw error;
+
+      saveMessage.textContent =
+        "Hikoya saqlandi ❤️";
+
+    }
+
+
+    editingId = null;
+
+    storyTitle.value = "";
+
+    storyContent.value = "";
+
+    storyPassword.value = "";
+
+    isPublic.checked = true;
+
+    writerTitle.textContent =
+      "Yangi hikoya";
+
+    await loadStories();
+
+  }catch(error){
+
+    console.error(error);
+
+    saveMessage.textContent =
+      "Xatolik: " +
+      error.message;
 
   }
-
-  let result;
-
-  if(editingId){
-
-    result =
-      await supabaseClient
-        .from("stories")
-        .update({
-          title: title,
-          content: content,
-          is_public: isPublic,
-          story_password_hash: passwordHash
-        })
-        .eq("id", editingId)
-        .eq("owner_id", currentUser.id);
-
-  }else{
-
-    result =
-      await supabaseClient
-        .from("stories")
-        .insert({
-          title: title,
-          content: content,
-          owner_id: currentUser.id,
-          is_public: isPublic,
-          story_password_hash: passwordHash
-        });
-
-  }
-
-  if(result.error){
-
-    msg.innerHTML =
-      '<p class="error">' +
-      result.error.message +
-      '</p>';
-
-    return;
-
-  }
-
-  msg.innerHTML =
-    '<p class="success">✅ Hikoya saqlandi.</p>';
-
-  newStory();
-
-  await loadStories();
 
 }
 
@@ -862,37 +970,52 @@ async function saveStory(){
 
 function editStory(story){
 
-  editingId = story.id;
+  editingId =
+    story.id;
 
-  document.getElementById("storyTitle").value =
+  writerTitle.textContent =
+    "Hikoyani tahrirlash";
+
+  storyTitle.value =
     story.title || "";
 
-  document.getElementById("storyContent").value =
+  storyContent.value =
     story.content || "";
 
-  document.getElementById("isPublic").checked =
+  isPublic.checked =
     !!story.is_public;
 
-  document.getElementById("storyPassword").value = "";
+  storyPassword.value = "";
 
-  document.getElementById("cancelEditBtn")
-    .classList.remove("hidden");
+  saveMessage.textContent =
+    "Yangi parol yozsangiz, eski parol almashtiriladi.";
 
-  document.getElementById("writerPanel")
-    .scrollIntoView({
-      behavior:"smooth"
-    });
+  writerPanel.classList.remove("hidden");
+
+  window.scrollTo({
+    top:document.body.scrollHeight,
+    behavior:"smooth"
+  });
 
 }
 
 
-/* =========================
-   CANCEL EDIT
-========================= */
-
 function cancelEdit(){
 
-  newStory();
+  editingId = null;
+
+  writerTitle.textContent =
+    "Yangi hikoya";
+
+  storyTitle.value = "";
+
+  storyContent.value = "";
+
+  storyPassword.value = "";
+
+  isPublic.checked = true;
+
+  saveMessage.textContent = "";
 
 }
 
@@ -903,38 +1026,30 @@ function cancelEdit(){
 
 async function deleteStory(story){
 
-  if(!currentUser){
-
-    return;
-
-  }
-
   if(!confirm(
     "Bu hikoyani o‘chirmoqchimisiz?"
-  )){
+  )) return;
 
-    return;
+  try{
 
-  }
+    const { error } =
+      await supabaseClient
+        .from("stories")
+        .delete()
+        .eq("id",story.id);
 
-  const result =
-    await supabaseClient
-      .from("stories")
-      .delete()
-      .eq("id", story.id);
+    if(error) throw error;
 
-  if(result.error){
+    await loadStories();
+
+  }catch(error){
 
     alert(
       "O‘chirishda xatolik: " +
-      result.error.message
+      error.message
     );
 
-    return;
-
   }
-
-  await loadStories();
 
 }
 
@@ -945,65 +1060,79 @@ async function deleteStory(story){
 
 async function openStory(story){
 
-  if(
+  const locked =
     story.is_password_protected ||
-    story.story_password_hash
-  ){
+    !!story.story_password_hash;
 
-    const password =
-      prompt("🔐 Hikoya parolini kiriting:");
+  if(!locked){
 
-    if(password === null){
+    showReader(
+      story.title,
+      story.content,
+      story.created_at
+    );
 
-      return;
+    return;
 
-    }
+  }
 
-    if(!story.share_token){
 
-      alert(
-        "Bu hikoyaga ulashish tokeni mavjud emas."
+  const password =
+    prompt(
+      "🔐 Bu hikoya parol bilan himoyalangan.\nParolni kiriting:"
+    );
+
+  if(password === null) return;
+
+  if(!story.share_token){
+
+    alert(
+      "Bu hikoyada ulashish tokeni mavjud emas."
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        "verify_story_password",
+        {
+          p_token:story.share_token,
+          p_password:password
+        }
       );
+
+    if(error) throw error;
+
+    if(!data || data.length === 0){
+
+      alert("Parol noto‘g‘ri.");
 
       return;
 
     }
 
     const result =
-      await supabaseClient.rpc(
-        "verify_story_password",
-        {
-          p_token: story.share_token,
-          p_password: password
-        }
-      );
+      data[0];
 
-    if(result.error){
+    showReader(
+      result.title,
+      result.content,
+      result.created_at
+    );
 
-      alert(
-        "Xatolik: " +
-        result.error.message
-      );
+  }catch(error){
 
-      return;
-
-    }
-
-    if(!result.data || !result.data.length){
-
-      alert("❌ Parol noto‘g‘ri.");
-
-      return;
-
-    }
-
-    showReader(result.data[0]);
-
-    return;
+    alert(
+      "Xatolik: " +
+      error.message
+    );
 
   }
-
-  showReader(story);
 
 }
 
@@ -1012,78 +1141,82 @@ async function openStory(story){
    READER
 ========================= */
 
-function showReader(story){
+function showReader(
+  title,
+  content,
+  date
+){
 
-  document.getElementById("readerTitle")
-    .textContent =
-      story.title || "Nomsiz hikoya";
+  document.getElementById(
+    "readerTitle"
+  ).textContent =
+    title || "Hikoya";
 
-  document.getElementById("readerContent")
-    .textContent =
-      story.content || "";
+  document.getElementById(
+    "readerDate"
+  ).textContent =
+    date
+      ? new Date(date).toLocaleString("uz-UZ")
+      : "";
 
-  document.getElementById("reader")
-    .classList.remove("hidden");
+  document.getElementById(
+    "readerContent"
+  ).textContent =
+    content || "";
+
+  document.getElementById(
+    "readerModal"
+  ).classList.remove("hidden");
 
 }
 
-
-/* =========================
-   CLOSE READER
-========================= */
 
 function closeReader(){
 
-  document.getElementById("reader")
-    .classList.add("hidden");
+  document.getElementById(
+    "readerModal"
+  ).classList.add("hidden");
 
 }
 
 
 /* =========================
-   SHARED STORY
+   SHARE
 ========================= */
 
-async function openSharedStory(token){
+async function copyStoryLink(token){
 
-  if(!token){
+  const url =
+    window.location.origin +
+    window.location.pathname +
+    "?story=" +
+    encodeURIComponent(token);
 
-    return;
+  try{
 
-  }
+    await navigator.clipboard.writeText(url);
 
-  const result =
-    await supabaseClient.rpc(
-      "get_public_story",
-      {
-        p_token: token
-      }
+    alert(
+      "Hikoya havolasi nusxalandi ❤️"
     );
 
-  if(result.error){
+  }catch{
 
-    console.error(result.error);
-
-    return;
-
-  }
-
-  if(!result.data || !result.data.length){
-
-    return;
+    prompt(
+      "Havolani nusxalang:",
+      url
+    );
 
   }
-
-  openStory(result.data[0]);
 
 }
 
 
 /* =========================
-   LINK CHECK
+   OPEN SHARED STORY
 ========================= */
 
-function openStoryFromLink(){
+async function openStoryFromLink(){
 
   const params =
     new URLSearchParams(
@@ -1093,9 +1226,91 @@ function openStoryFromLink(){
   const token =
     params.get("story");
 
-  if(token){
+  if(!token) return;
 
-    openSharedStory(token);
+
+  try{
+
+    const { data, error } =
+      await supabaseClient.rpc(
+        "get_public_story",
+        {
+          p_token:token
+        }
+      );
+
+    if(error) throw error;
+
+    if(!data || data.length === 0){
+
+      alert(
+        "Hikoya topilmadi yoki ommaga yopiq."
+      );
+
+      return;
+
+    }
+
+    const story =
+      data[0];
+
+    if(story.is_password_protected){
+
+      const password =
+        prompt(
+          "🔐 Bu hikoya parol bilan himoyalangan.\nParolni kiriting:"
+        );
+
+      if(password === null) return;
+
+
+      const result =
+        await supabaseClient.rpc(
+          "verify_story_password",
+          {
+            p_token:token,
+            p_password:password
+          }
+        );
+
+      if(result.error)
+        throw result.error;
+
+      if(
+        !result.data ||
+        result.data.length === 0
+      ){
+
+        alert("Parol noto‘g‘ri.");
+
+        return;
+
+      }
+
+      const unlocked =
+        result.data[0];
+
+      showReader(
+        unlocked.title,
+        unlocked.content,
+        unlocked.created_at
+      );
+
+    }else{
+
+      showReader(
+        story.title,
+        story.content,
+        story.created_at
+      );
+    }
+
+  }catch(error){
+
+    alert(
+      "Hikoyani ochishda xatolik: " +
+      error.message
+    );
 
   }
 
@@ -1103,17 +1318,17 @@ function openStoryFromLink(){
 
 
 /* =========================
-   ESCAPE HTML
+   HTML SECURITY
 ========================= */
 
 function escapeHtml(value){
 
   return String(value || "")
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 
 }
 
@@ -1122,30 +1337,9 @@ function escapeHtml(value){
    START
 ========================= */
 
-async function checkUser(){
-
-  const result =
-    await supabaseClient.auth.getSession();
-
-  currentUser =
-    result.data.session
-      ? result.data.session.user
-      : null;
-
-  updateAuthUI();
-
-  await loadStories();
-
-  openStoryFromLink();
-
-}
-
-
-/* =========================
-   START APP
-========================= */
-
 checkUser();
+
+openStoryFromLink();
 
 </script>
 
