@@ -2,1458 +2,705 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Munisam hikoyalari</title>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;
-  min-height:100vh;
-  font-family:Arial,sans-serif;
-  color:#fff;
-  background:
-    linear-gradient(#0008,#0008),
-    url("IMG_20260708_133902_971.jpg") center/cover fixed no-repeat;
+ margin:0;min-height:100vh;font-family:Arial,sans-serif;color:#222;
+ background:linear-gradient(#0003,#0005),url("IMG_20260708_133902_971.jpg") center/cover fixed;
 }
-.container{max-width:1000px;margin:auto;padding:20px}
-header{
-  text-align:center;
-  padding:25px 10px;
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+#app{max-width:900px;margin:auto;padding:18px}
+header,.box,.story,.quote,.auth{
+ background:#fffffff0;border-radius:18px;padding:18px;margin-bottom:16px;
+ box-shadow:0 5px 25px #0003
 }
-h1{margin:0 0 8px;font-size:32px}
-h2{margin-top:0}
-.card{
-  background:#111c;
-  backdrop-filter:blur(10px);
-  border:1px solid #ffffff25;
-  border-radius:18px;
-  padding:18px;
-  margin:15px 0;
-}
-input,textarea,button,select{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:10px;
-  border:1px solid #ffffff35;
-  background:#ffffff12;
-  color:#fff;
-  font-size:15px;
-}
-textarea{min-height:180px;resize:vertical}
+h1,h2,h3{margin-top:0}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
 button{
-  cursor:pointer;
-  background:#ffffff20;
+ border:0;border-radius:10px;padding:10px 14px;background:#222;color:white
 }
-button:hover{background:#ffffff35}
-.btnrow{
-  display:flex;
-  flex-wrap:wrap;
-  gap:7px;
+button.alt{background:#777}
+button.red{background:#b3261e}
+button.green{background:#237a3b}
+input,textarea{
+ width:100%;padding:12px;border:1px solid #bbb;border-radius:10px;margin:6px 0 10px;
+ background:white
 }
-.btnrow button{width:auto;flex:1;min-width:130px}
+textarea{min-height:140px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
 .hidden{display:none!important}
-.story-title{
-  font-size:22px;
-  font-weight:bold;
-  margin-bottom:8px;
+.story{position:relative}
+.story h3{margin-bottom:8px}
+.date{font-size:12px;color:#666}
+.media{margin-top:12px}
+.media img,.media video,.media audio{
+ max-width:100%;width:100%;border-radius:12px
 }
-.date{opacity:.7;font-size:13px}
-.story-content{
-  white-space:pre-wrap;
-  line-height:1.6;
-  margin-top:12px;
+.quote{border-left:5px solid #333}
+.small{font-size:13px;color:#555}
+.linkbox{word-break:break-all;background:#eee;padding:9px;border-radius:8px}
+#progressBox{margin-top:8px}
+#progressBar{width:100%;height:12px}
+#toast{
+ position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+ background:#222;color:#fff;padding:12px 18px;border-radius:12px;
+ display:none;z-index:9999
 }
-.quote{
-  padding:15px;
-  margin:10px 0;
-  border-left:4px solid #fff;
-  background:#ffffff10;
-  border-radius:8px;
-}
-.quote-text{
-  font-size:18px;
-  line-height:1.5;
-}
-.media{
-  width:100%;
-  max-height:500px;
-  margin-top:10px;
-  border-radius:12px;
-}
-.status{
-  padding:10px;
-  border-radius:10px;
-  background:#ffffff12;
-  margin:8px 0;
-}
-.progress{
-  height:8px;
-  background:#ffffff20;
-  border-radius:10px;
-  overflow:hidden;
-}
-.progress div{
-  height:100%;
-  width:0;
-  background:#fff;
-  transition:.2s;
-}
-.modal{
-  position:fixed;
-  inset:0;
-  background:#000b;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  z-index:99;
-}
-.modal-box{
-  width:min(500px,100%);
-  background:#181818;
-  border-radius:18px;
-  padding:20px;
-}
-.small{font-size:13px;opacity:.7}
-a{color:#fff}
+.auth{max-width:500px;margin:40px auto}
+.center{text-align:center}
+.back{margin-bottom:15px}
+hr{border:0;border-top:1px solid #ddd;margin:18px 0}
 </style>
 </head>
-
 <body>
-<div class="container">
-
-<header>
-  <h1>🌊 Munisam hikoyalari</h1>
-  <div>Hikoyalar • Iqtiboslar • Xotiralar</div>
-</header>
-
-<section id="authSection" class="card">
-  <h2>Kirish</h2>
-
-  <input id="authEmail" type="email" placeholder="Email">
-  <input id="authPassword" type="password" placeholder="Parol">
-
-  <div class="btnrow">
-    <button onclick="login()">Kirish</button>
-    <button onclick="registerUser()">Ro‘yxatdan o‘tish</button>
-  </div>
-
-  <button onclick="forgotPassword()">Parolni unutdingizmi?</button>
-  <div id="authStatus" class="status hidden"></div>
-</section>
-
-<section id="userSection" class="card hidden">
-  <div id="userInfo"></div>
-
-  <div class="btnrow">
-    <button onclick="newStory()">＋ Yangi hikoya</button>
-    <button onclick="logout()">Chiqish</button>
-  </div>
-</section>
-
-<section id="mainSection" class="hidden">
-
-  <div class="card">
-    <input id="searchInput"
-           placeholder="🔎 Hikoya qidirish..."
-           oninput="renderStories()">
-  </div>
-
-  <div id="editor" class="card hidden">
-    <h2 id="editorTitle">Yangi hikoya</h2>
-
-    <input id="storyTitle" placeholder="Hikoya nomi">
-
-    <textarea id="storyContent"
-      placeholder="Hikoyangizni yozing..."></textarea>
-
-    <label>
-      <input id="storyPublic" type="checkbox" style="width:auto">
-      Ommaviy hikoya
-    </label>
-
-    <input id="storyPassword"
-           type="password"
-           placeholder="Parol (ixtiyoriy)">
-
-    <hr>
-
-    <label>🖼️ Rasm</label>
-    <input id="imageFile" type="file" accept="image/*"
-           onchange="showFileName('imageFile','imageName')">
-    <div id="imageName" class="small"></div>
-
-    <label>🎬 Video</label>
-    <input id="videoFile" type="file" accept="video/*"
-           onchange="showFileName('videoFile','videoName')">
-    <div id="videoName" class="small"></div>
-
-    <label>🎵 Audio</label>
-    <input id="audioFile" type="file" accept="audio/*"
-           onchange="showFileName('audioFile','audioName')">
-    <div id="audioName" class="small"></div>
-
-    <label>🎤 Ovoz yozish</label>
-    <div class="btnrow">
-      <button onclick="startRecording()">🎙️ Boshlash</button>
-      <button onclick="stopRecording()">⏹️ To‘xtatish</button>
-    </div>
-
-    <div id="recordStatus" class="small"></div>
-
-    <div class="progress">
-      <div id="uploadProgress"></div>
-    </div>
-    <div id="uploadStatus" class="status hidden"></div>
-
-    <div class="btnrow">
-      <button onclick="saveStory()">💾 Saqlash</button>
-      <button onclick="cancelEdit()">Bekor qilish</button>
-    </div>
-  </div>
-
-  <div id="storiesSection" class="card">
-    <h2>📚 Hikoyalar</h2>
-    <div id="storiesList"></div>
-  </div>
-
-  <div class="card">
-    <h2>💬 Iqtiboslar</h2>
-    <div id="quotesList"></div>
-  </div>
-
-</section>
-</div>
-
-<div id="passwordModal" class="modal hidden">
-  <div class="modal-box">
-    <h2>🔐 Himoyalangan hikoya</h2>
-    <input id="readerPassword"
-           type="password"
-           placeholder="Hikoya paroli">
-    <div id="readerPasswordStatus" class="status hidden"></div>
-
-    <div class="btnrow">
-      <button onclick="verifyReaderPassword()">Ochish</button>
-      <button onclick="closeModal('passwordModal')">Yopish</button>
-    </div>
-  </div>
-</div>
-
-<div id="recoveryModal" class="modal hidden">
-  <div class="modal-box">
-    <h2>🔑 Yangi parol</h2>
-    <input id="newPassword"
-           type="password"
-           placeholder="Yangi parol">
-    <button onclick="changePassword()">Parolni o‘zgartirish</button>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div id="app"></div>
+<div id="toast"></div>
 
 <script>
-const SUPABASE_URL =
-"https://xponjbwjrbnonkuyhtzz.supabase.co";
+const SUPABASE_URL="https://xponjbwjrbnonkuyhtzz.supabase.co";
+const SUPABASE_KEY="sb_publishable_DSnyIy3Xp3w_Yn1CwaheXA_Gl6-bFon";
+const ADMIN_ID="d83107c5-ac1a-49bf-a53d-7fe17f39f15b";
+const BUCKET="story-media";
 
-const SUPABASE_KEY =
-"sb_publishable_DSnyIy3Xp3w_Yn1CwaheXA_Gl6-bFon";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const app=document.getElementById("app");
 
-const ADMIN_ID =
-"d83107c5-ac1a-49bf-a53d-7fe17f39f15b";
+let currentUser=null;
+let editingId=null;
+let selectedImage=null;
+let selectedVideo=null;
+let selectedAudio=null;
+let selectedVoice=null;
+let recorder=null;
+let voiceChunks=[];
 
-const BUCKET = "story-media";
-
-const supabaseClient =
-supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-
-let currentUser = null;
-let stories = [];
-let editingStory = null;
-let pendingStory = null;
-let mediaRecorder = null;
-let recordedChunks = [];
-let recordedBlob = null;
-
-const quotes = [
- {
-  id:"quote-1",
-  text:"Ba'zi odamlar ketmaydi, shunchaki hayotingda o‘rnini yo‘qotadi."
- },
- {
-  id:"quote-2",
-  text:"Ba'zan sukut — aytilmagan mingta gapdan ham balandroq."
- },
- {
-  id:"quote-3",
-  text:"Ketganlar emas, qolib seni tushunmaganlar ko‘proq og‘ritadi."
- }
+const quotes=[
+ "Ba'zi odamlar ketmaydi, shunchaki hayotingda o‘rnini yo‘qotadi.",
+ "Ba'zan sukut — aytilmagan eng rost gapdir.",
+ "Insonni yo‘qotishdan ko‘ra, uning yonida o‘zingni yo‘qotish og‘irroq.",
+ "Vaqt hamma narsani tuzatmaydi, ba'zilariga shunchaki ko‘nikishni o‘rgatadi."
 ];
 
-function $(id){
-  return document.getElementById(id);
+function toast(t){
+ const x=document.getElementById("toast");
+ x.textContent=t;x.style.display="block";
+ clearTimeout(window.toastTimer);
+ window.toastTimer=setTimeout(()=>x.style.display="none",2500);
 }
 
-function escapeHtml(value){
-  return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+function esc(v=""){
+ return String(v).replace(/[&<>"']/g,m=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ }[m]));
 }
 
-function showStatus(id,text){
-  const el=$(id);
-  if(!el)return;
-  el.textContent=text;
-  el.classList.remove("hidden");
+function uid(){return crypto.randomUUID()}
+
+function dateText(d){
+ return new Date(d).toLocaleString("uz-UZ");
 }
 
-function hide(id){
-  $(id)?.classList.add("hidden");
+function publicMedia(path){
+ if(!path)return "";
+ return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
-function closeModal(id){
-  $(id)?.classList.add("hidden");
+function storyLink(token){
+ return location.origin+location.pathname+"?story="+encodeURIComponent(token);
 }
 
-function makeToken(){
-  return crypto.randomUUID().replaceAll("-","");
+function mediaLink(token,type){
+ return location.origin+location.pathname+"?media="+encodeURIComponent(token)+"&type="+encodeURIComponent(type);
 }
 
-function publicMediaUrl(path){
-  if(!path)return "";
-  return supabaseClient
-    .storage
-    .from(BUCKET)
-    .getPublicUrl(path).data.publicUrl;
+function quoteLink(i){
+ return location.origin+location.pathname+"?quote="+i;
 }
 
-function getStoryLink(token){
-  return location.origin+
-    location.pathname+
-    "?story="+encodeURIComponent(token);
+async function copyText(t){
+ try{
+  await navigator.clipboard.writeText(t);
+  toast("Link nusxalandi");
+ }catch{
+  const a=document.createElement("textarea");
+  a.value=t;document.body.appendChild(a);a.select();
+  document.execCommand("copy");a.remove();toast("Link nusxalandi");
+ }
 }
 
-function getQuoteLink(id){
-  return location.origin+
-    location.pathname+
-    "?quote="+encodeURIComponent(id);
+function telegram(t){
+ location.href="https://t.me/share/url?url="+encodeURIComponent(t);
 }
 
-function getMediaLink(token,type){
-  return location.origin+
-    location.pathname+
-    "?media="+encodeURIComponent(token)+
-    "&type="+encodeURIComponent(type);
+async function user(){
+ const {data}=await sb.auth.getUser();
+ currentUser=data.user||null;
+ return currentUser;
 }
 
-async function copyText(text){
-  try{
-    await navigator.clipboard.writeText(text);
-    alert("Link nusxalandi ✅");
-  }catch(e){
-    const area=document.createElement("textarea");
-    area.value=text;
-    document.body.appendChild(area);
-    area.select();
-    document.execCommand("copy");
-    area.remove();
-    alert("Link nusxalandi ✅");
-  }
-}<script>
-async function registerUser(){
-  const email=$("authEmail").value.trim();
-  const password=$("authPassword").value;
+function isAdmin(){
+ return currentUser && currentUser.id===ADMIN_ID;
+}
 
-  if(!email||!password){
-    showStatus("authStatus","Email va parolni kiriting.");
-    return;
-  }
+function resetFiles(){
+ selectedImage=null;selectedVideo=null;selectedAudio=null;selectedVoice=null;
+}
 
-  const {error}=await supabaseClient.auth.signUp({
-    email,
-    password
-  });
-
-  if(error){
-    showStatus("authStatus",error.message);
-    return;
-  }
-
-  showStatus(
-    "authStatus",
-    "Ro‘yxatdan o‘tildi. Email tasdiqlash kerak bo‘lishi mumkin."
-  );
+function renderAuth(){
+ app.innerHTML=`
+ <div class="auth">
+ <h1 class="center">Munisam hikoyalari</h1>
+ <p class="center">Kirish yoki yangi hisob yaratish</p>
+ <input id="email" type="email" placeholder="Email">
+ <input id="password" type="password" placeholder="Parol">
+ <div class="row">
+  <button onclick="login()">Kirish</button>
+  <button class="alt" onclick="register()">Ro‘yxatdan o‘tish</button>
+ </div>
+ <button class="alt" style="width:100%;margin-top:8px" onclick="forgot()">Parolni tiklash</button>
+ </div>`;
 }
 
 async function login(){
-  const email=$("authEmail").value.trim();
-  const password=$("authPassword").value;
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ if(!email||!password)return toast("Email va parolni kiriting");
+ const {error}=await sb.auth.signInWithPassword({email,password});
+ if(error)return toast(error.message);
+ await init();
+}
 
-  const {data,error}=await supabaseClient.auth.signInWithPassword({
-    email,
-    password
-  });
+async function register(){
+ const email=document.getElementById("email").value.trim();
+ const password=document.getElementById("password").value;
+ if(!email||password.length<6)return toast("Email va kamida 6 belgili parol kerak");
+ const {error}=await sb.auth.signUp({email,password});
+ if(error)return toast(error.message);
+ toast("Ro‘yxatdan o‘tish muvaffaqiyatli");
+}
 
-  if(error){
-    showStatus("authStatus",error.message);
-    return;
-  }
-
-  currentUser=data.user;
-  await updateAuthUI();
-  await loadStories();
+async function forgot(){
+ const email=document.getElementById("email").value.trim();
+ if(!email)return toast("Avval email yozing");
+ const {error}=await sb.auth.resetPasswordForEmail(email,{
+  redirectTo:location.origin+location.pathname
+ });
+ if(error)return toast(error.message);
+ toast("Parolni tiklash havolasi emailga yuborildi");
 }
 
 async function logout(){
-  await supabaseClient.auth.signOut();
-  currentUser=null;
-  location.href=location.pathname;
+ await sb.auth.signOut();
+ currentUser=null;
+ renderAuth();
 }
 
-async function forgotPassword(){
-  const email=$("authEmail").value.trim();
-
-  if(!email){
-    showStatus("authStatus","Avval emailingizni yozing.");
-    return;
-  }
-
-  const {error}=await supabaseClient.auth.resetPasswordForEmail(
-    email,
-    {
-      redirectTo:location.origin+
-        location.pathname+
-        "?recovery=1"
-    }
-  );
-
-  if(error){
-    showStatus("authStatus",error.message);
-    return;
-  }
-
-  showStatus(
-    "authStatus",
-    "Parolni tiklash havolasi emailingizga yuborildi."
-  );
+async function init(){
+ await user();
+ if(!currentUser){renderAuth();return}
+ renderHome();
 }
 
-async function changePassword(){
-  const password=$("newPassword").value;
+async function renderHome(){
+ app.innerHTML=`
+ <header>
+  <h1>Munisam hikoyalari</h1>
+  <p class="small">${esc(currentUser.email)}</p>
+  <nav>
+   <button onclick="renderHome()">Bosh sahifa</button>
+   <button onclick="showAdd()">+ Hikoya</button>
+   <button onclick="showQuotes()">Iqtiboslar</button>
+   <button class="alt" onclick="logout()">Chiqish</button>
+  </nav>
+ </header>
+ <div class="box">
+  <input id="search" placeholder="Hikoya qidirish..." oninput="loadStories()">
+ </div>
+ <div id="stories"></div>`;
+ await loadStories();
+}function showAdd(){
+ editingId=null;
+ resetFiles();
+ app.innerHTML=`
+ <div class="box">
+ <button class="alt back" onclick="renderHome()">← Orqaga</button>
+ <h2>Yangi hikoya</h2>
+ <input id="title" placeholder="Hikoya nomi">
+ <textarea id="content" placeholder="Hikoya matni"></textarea>
 
-  if(!password){
-    alert("Yangi parolni kiriting.");
-    return;
-  }
+ <label><b>Rasm</b></label>
+ <input id="image" type="file" accept="image/*" onchange="selectedImage=this.files[0]">
 
-  const {error}=await supabaseClient.auth.updateUser({
-    password
-  });
+ <label><b>Video</b></label>
+ <input id="video" type="file" accept="video/*" onchange="selectedVideo=this.files[0]">
 
-  if(error){
-    alert(error.message);
-    return;
-  }
+ <label><b>Musiqa/audio</b></label>
+ <input id="audio" type="file" accept="audio/*" onchange="selectedAudio=this.files[0]">
 
-  alert("Parol o‘zgartirildi ✅");
-  closeModal("recoveryModal");
+ <label><b>Ovoz yozish</b></label>
+ <div class="row">
+  <button type="button" onclick="startVoice()">🎙 Boshlash</button>
+  <button type="button" class="red" onclick="stopVoice()">To‘xtatish</button>
+ </div>
+ <p id="voiceStatus" class="small"></p>
+
+ <label><b>Hikoya turi</b></label>
+ <select id="public" style="width:100%;padding:12px;border-radius:10px">
+  <option value="true">Ochiq</option>
+  <option value="false">Yopiq</option>
+ </select>
+
+ <input id="storyPassword" type="password" placeholder="Parol (ixtiyoriy)">
+
+ <div id="progressBox" class="hidden">
+  <progress id="progressBar" value="0" max="100"></progress>
+  <div id="progressText">0%</div>
+ </div>
+
+ <button class="green" style="width:100%;margin-top:12px" onclick="saveStory()">Saqlash</button>
+ </div>`;
 }
 
-async function updateAuthUI(){
-  if(!currentUser){
-    $("authSection").classList.remove("hidden");
-    $("userSection").classList.add("hidden");
-    $("mainSection").classList.add("hidden");
-    return;
-  }
-
-  $("authSection").classList.add("hidden");
-  $("userSection").classList.remove("hidden");
-  $("mainSection").classList.remove("hidden");
-
-  const admin =
-    currentUser.id===ADMIN_ID;
-
-  $("userInfo").innerHTML=
-    "👤 "+escapeHtml(currentUser.email)+
-    (admin?"<br>👑 Admin":"");
+async function startVoice(){
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  voiceChunks=[];
+  recorder=new MediaRecorder(stream);
+  recorder.ondataavailable=e=>{if(e.data.size)voiceChunks.push(e.data)};
+  recorder.onstop=()=>{
+   selectedVoice=new File(
+    [new Blob(voiceChunks,{type:"audio/webm"})],
+    "voice.webm",{type:"audio/webm"}
+   );
+   stream.getTracks().forEach(t=>t.stop());
+   document.getElementById("voiceStatus").textContent="Ovoz yozib olindi.";
+  };
+  recorder.start();
+  document.getElementById("voiceStatus").textContent="Yozilmoqda...";
+ }catch(e){
+  toast("Mikrofonga ruxsat berilmadi");
+ }
 }
 
-function newStory(){
-  editingStory=null;
-
-  $("editorTitle").textContent="Yangi hikoya";
-  $("storyTitle").value="";
-  $("storyContent").value="";
-  $("storyPublic").checked=false;
-  $("storyPassword").value="";
-
-  $("imageFile").value="";
-  $("videoFile").value="";
-  $("audioFile").value="";
-
-  $("imageName").textContent="";
-  $("videoName").textContent="";
-  $("audioName").textContent="";
-  $("recordStatus").textContent="";
-
-  recordedBlob=null;
-  recordedChunks=[];
-
-  $("editor").classList.remove("hidden");
-  window.scrollTo({
-    top:$("editor").offsetTop,
-    behavior:"smooth"
-  });
+function stopVoice(){
+ if(recorder&&recorder.state!=="inactive")recorder.stop();
 }
 
-function cancelEdit(){
-  $("editor").classList.add("hidden");
-  editingStory=null;
+function progress(n){
+ const box=document.getElementById("progressBox");
+ const bar=document.getElementById("progressBar");
+ const txt=document.getElementById("progressText");
+ if(!box||!bar)return;
+ box.classList.remove("hidden");
+ bar.value=n;txt.textContent=n+"%";
 }
 
-function editStory(story){
-  editingStory=story;
-
-  $("editorTitle").textContent="Hikoyani tahrirlash";
-  $("storyTitle").value=story.title||"";
-  $("storyContent").value=story.content||"";
-  $("storyPublic").checked=!!story.is_public;
-  $("storyPassword").value="";
-
-  $("imageFile").value="";
-  $("videoFile").value="";
-  $("audioFile").value="";
-
-  $("editor").classList.remove("hidden");
-
-  window.scrollTo({
-    top:$("editor").offsetTop,
-    behavior:"smooth"
-  });
+async function uploadFile(file,folder){
+ if(!file)return null;
+ const ext=(file.name.split(".").pop()||"bin").replace(/[^a-z0-9]/gi,"");
+ const path=currentUser.id+"/"+folder+"/"+uid()+"."+ext;
+ progress(10);
+ const {error}=await sb.storage.from(BUCKET).upload(path,file,{
+  cacheControl:"3600",upsert:false
+ });
+ if(error)throw error;
+ progress(100);
+ return path;
 }
 
-function showFileName(inputId,labelId){
-  const file=$(inputId).files[0];
-  $(labelId).textContent=
-    file?file.name:"";
-}
-
-async function startRecording(){
-  try{
-    const stream=
-      await navigator.mediaDevices.getUserMedia({
-        audio:true
-      });
-
-    recordedChunks=[];
-    recordedBlob=null;
-
-    mediaRecorder=
-      new MediaRecorder(stream);
-
-    mediaRecorder.ondataavailable=e=>{
-      if(e.data.size>0)
-        recordedChunks.push(e.data);
-    };
-
-    mediaRecorder.onstop=()=>{
-      recordedBlob=
-        new Blob(recordedChunks,{
-          type:"audio/webm"
-        });
-
-      stream.getTracks().forEach(t=>t.stop());
-
-      $("recordStatus").textContent=
-        "🎤 Ovoz yozib olindi.";
-    };
-
-    mediaRecorder.start();
-
-    $("recordStatus").textContent=
-      "🔴 Ovoz yozilmoqda...";
-  }catch(e){
-    $("recordStatus").textContent=
-      "Mikrofonga ruxsat berilmadi.";
-  }
-}
-
-function stopRecording(){
-  if(mediaRecorder &&
-     mediaRecorder.state!=="inactive"){
-    mediaRecorder.stop();
-  }
-}
-
-function setProgress(value){
-  $("uploadProgress").style.width=
-    Math.max(0,Math.min(100,value))+"%";
-}
-
-async function uploadMedia(file,userId,folder){
-  if(!file)return null;
-
-  const safeName=
-    file.name
-      .replace(/[^\w.\-]/g,"_")
-      .slice(-80);
-
-  const path=
-    userId+"/"+folder+"/"+Date.now()+"_"+safeName;
-
-  showStatus(
-    "uploadStatus",
-    "Yuklanmoqda: "+safeName
-  );
-
-  setProgress(20);
-
-  const {error}=await supabaseClient
-    .storage
-    .from(BUCKET)
-    .upload(path,file,{
-      upsert:false
-    });
-
-  if(error)throw error;
-
-  setProgress(100);
-
-  return path;
+async function hashPassword(p){
+ if(!p)return null;
+ const {data,error}=await sb.rpc("hash_story_password",{p_password:p});
+ if(error)throw error;
+ return data;
 }
 
 async function saveStory(){
-  if(!currentUser){
-    alert("Avval tizimga kiring.");
-    return;
+ try{
+  const title=document.getElementById("title").value.trim();
+  const content=document.getElementById("content").value;
+  const isPublic=document.getElementById("public").value==="true";
+  const password=document.getElementById("storyPassword").value;
+
+  if(!title)return toast("Hikoya nomini yozing");
+  if(!content.trim()&&!selectedImage&&!selectedVideo&&!selectedAudio&&!selectedVoice)
+   return toast("Hikoya yoki media qo‘shing");
+
+  progress(5);
+
+  let old=null;
+  if(editingId){
+   const {data}=await sb.from("stories").select("*").eq("id",editingId).single();
+   old=data;
   }
 
-  const title=$("storyTitle").value.trim();
-  const content=$("storyContent").value.trim();
-  const isPublic=$("storyPublic").checked;
-  const password=$("storyPassword").value;
+  let image_path=old?.image_path||null;
+  let video_path=old?.video_path||null;
+  let audio_path=old?.audio_path||null;
+  let voice_path=old?.voice_path||null;
 
-  if(!title){
-    alert("Hikoya nomini yozing.");
-    return;
+  if(selectedImage)image_path=await uploadFile(selectedImage,"images");
+  if(selectedVideo)video_path=await uploadFile(selectedVideo,"videos");
+  if(selectedAudio)audio_path=await uploadFile(selectedAudio,"audio");
+  if(selectedVoice)voice_path=await uploadFile(selectedVoice,"voice");
+
+  let story_password_hash=old?.story_password_hash||null;
+  if(password)story_password_hash=await hashPassword(password);
+
+  if(editingId){
+   const {error}=await sb.from("stories").update({
+    title,content,is_public:isPublic,story_password_hash,
+    image_path,video_path,audio_path,voice_path
+   }).eq("id",editingId);
+   if(error)throw error;
+  }else{
+   const {error}=await sb.from("stories").insert({
+    title,content,owner_id:currentUser.id,is_public:isPublic,
+    share_token:uid(),story_password_hash,
+    image_path,video_path,audio_path,voice_path
+   });
+   if(error)throw error;
   }
 
-  setProgress(0);
-  $("uploadStatus").classList.remove("hidden");
-  $("uploadStatus").textContent="Saqlanmoqda...";
-
-  try{
-    let shareToken=
-      editingStory?.share_token||makeToken();
-
-    let imagePath=
-      editingStory?.image_path||null;
-
-    let videoPath=
-      editingStory?.video_path||null;
-
-    let audioPath=
-      editingStory?.audio_path||null;
-
-    let voicePath=
-      editingStory?.voice_path||null;
-
-    const image=$("imageFile").files[0];
-    const video=$("videoFile").files[0];
-    const audio=$("audioFile").files[0];
-
-    if(image){
-      imagePath=
-        await uploadMedia(
-          image,currentUser.id,"images"
-        );
-    }
-
-    if(video){
-      videoPath=
-        await uploadMedia(
-          video,currentUser.id,"videos"
-        );
-    }
-
-    if(audio){
-      audioPath=
-        await uploadMedia(
-          audio,currentUser.id,"audio"
-        );
-    }
-
-    if(recordedBlob){
-      voicePath=
-        await uploadMedia(
-          new File(
-            [recordedBlob],
-            "voice.webm",
-            {type:"audio/webm"}
-          ),
-          currentUser.id,
-          "voice"
-        );
-    }
-
-    let passwordHash=
-      editingStory?.story_password_hash||null;
-
-    if(password){
-      const {data,error}=await supabaseClient
-        .rpc("hash_story_password",{
-          p_password:password
-        });
-
-      if(error)throw error;
-
-      passwordHash=data;
-    }
-
-    const row={
-      title,
-      content,
-      owner_id:currentUser.id,
-      is_public:isPublic,
-      share_token:shareToken,
-      story_password_hash:passwordHash,
-      image_path:imagePath,
-      video_path:videoPath,
-      audio_path:audioPath,
-      voice_path:voicePath
-    };
-
-    let result;
-
-    if(editingStory){
-      result=
-        await supabaseClient
-          .from("stories")
-          .update(row)
-          .eq("id",editingStory.id);
-    }else{
-      result=
-        await supabaseClient
-          .from("stories")
-          .insert(row);
-    }
-
-    if(result.error)throw result.error;
-
-    alert("Hikoya saqlandi ✅");
-
-    editingStory=null;
-    $("editor").classList.add("hidden");
-
-    setProgress(100);
-
-    await loadStories();
-
-  }catch(e){
-    console.error(e);
-
-    $("uploadStatus").textContent=
-      "Xatolik: "+e.message;
-
-    alert("Saqlashda xatolik:\n"+e.message);
-  }
+  progress(100);
+  toast("Hikoya saqlandi");
+  setTimeout(renderHome,500);
+ }catch(e){
+  console.error(e);
+  toast("Saqlashda xato: "+(e.message||e));
+ }
 }
 
 async function loadStories(){
-  if(!currentUser)return;
+ const box=document.getElementById("stories");
+ if(!box)return;
 
-  let query=
-    supabaseClient
-      .from("stories")
-      .select("*")
-      .order("created_at",{
-        ascending:false
-      });
+ const q=(document.getElementById("search")?.value||"").toLowerCase();
 
-  if(currentUser.id!==ADMIN_ID){
-    query=query.eq(
-      "owner_id",
-      currentUser.id
-    );
-  }
+ let query=sb.from("stories").select("*").order("created_at",{ascending:false});
 
-  const {data,error}=await query;
+ if(!isAdmin())query=query.eq("owner_id",currentUser.id);
 
-  if(error){
-    console.error(error);
-    $("storiesList").innerHTML=
-      "<div class='status'>"+
-      escapeHtml(error.message)+
-      "</div>";
-    return;
-  }
+ const {data,error}=await query;
+ if(error){
+  box.innerHTML=`<div class="box">Xato: ${esc(error.message)}</div>`;
+  return;
+ }
 
-  stories=data||[];
-  renderStories();
+ const arr=(data||[]).filter(s=>
+  !q||s.title.toLowerCase().includes(q)||
+  (s.content||"").toLowerCase().includes(q)
+ );
+
+ if(!arr.length){
+  box.innerHTML="<div class='box'>Hozircha hikoyalar yo‘q.</div>";
+  return;
+ }
+
+ box.innerHTML=arr.map(storyCard).join("");
 }
 
-function renderStories(){
-  const q=
-    $("searchInput").value
-      .trim()
-      .toLowerCase();
-
-  const filtered=
-    stories.filter(s=>
-      (s.title||"").toLowerCase().includes(q)||
-      (s.content||"").toLowerCase().includes(q)
-    );
-
-  if(!filtered.length){
-    $("storiesList").innerHTML=
-      "<div class='small'>Hikoya topilmadi.</div>";
-    return;
-  }
-
-  $("storiesList").innerHTML=
-    filtered.map(storyCard).join("");
- }<script>
 function storyCard(s){
-  const storyLink=
-    s.is_public?
-      getStoryLink(s.share_token):
-      "";
+ const sl=storyLink(s.share_token);
+ return `
+ <article class="story">
+ <h3>${esc(s.title)}</h3>
+ <div class="date">${dateText(s.created_at)} · ${s.is_public?"Ochiq":"Yopiq"}</div>
+ <p>${esc((s.content||"").slice(0,300))}${(s.content||"").length>300?"...":""}</p>
 
-  let media="";
+ ${s.image_path?`<div class="media"><img src="${esc(publicMedia(s.image_path))}"></div>`:""}
+ ${s.video_path?`<div class="media"><video controls src="${esc(publicMedia(s.video_path))}"></video></div>`:""}
+ ${s.audio_path?`<div class="media"><audio controls src="${esc(publicMedia(s.audio_path))}"></audio></div>`:""}
+ ${s.voice_path?`<div class="media"><audio controls src="${esc(publicMedia(s.voice_path))}"></audio></div>`:""}
 
-  if(s.image_path){
-    const url=publicMediaUrl(s.image_path);
-    media+=`
-      <img class="media"
-           src="${url}">
-      ${
-        s.is_public?
-        `<button onclick="copyMediaLink('${escapeHtml(s.share_token)}','image')">
-          🖼️ Rasm linkini nusxalash
-        </button>`:""
-      }
-    `;
-  }
+ <div class="row" style="margin-top:12px">
+  <button onclick="readStory('${s.id}')">O‘qish</button>
+  <button class="alt" onclick="copyText('${esc(sl)}')">Hikoya linki</button>
+  <button class="alt" onclick="editStory('${s.id}')">Tahrirlash</button>
+  <button class="red" onclick="deleteStory('${s.id}')">O‘chirish</button>
+ </div>
 
-  if(s.video_path){
-    const url=publicMediaUrl(s.video_path);
-    media+=`
-      <video class="media"
-             controls
-             src="${url}"></video>
-      ${
-        s.is_public?
-        `<button onclick="copyMediaLink('${escapeHtml(s.share_token)}','video')">
-          🎬 Video linkini nusxalash
-        </button>`:""
-      }
-    `;
-  }
+ <div class="linkbox" style="margin-top:8px">${esc(sl)}</div>
 
-  if(s.audio_path){
-    const url=publicMediaUrl(s.audio_path);
-    media+=`
-      <audio class="media"
-             controls
-             src="${url}"></audio>
-      ${
-        s.is_public?
-        `<button onclick="copyMediaLink('${escapeHtml(s.share_token)}','audio')">
-          🎵 Audio linkini nusxalash
-        </button>`:""
-      }
-    `;
-  }
-
-  if(s.voice_path){
-    const url=publicMediaUrl(s.voice_path);
-    media+=`
-      <audio class="media"
-             controls
-             src="${url}"></audio>
-      ${
-        s.is_public?
-        `<button onclick="copyMediaLink('${escapeHtml(s.share_token)}','voice')">
-          🎤 Ovoz linkini nusxalash
-        </button>`:""
-      }
-    `;
-  }
-
-  return `
-    <div class="card">
-
-      <div class="story-title">
-        ${escapeHtml(s.title)}
-      </div>
-
-      <div class="date">
-        ${new Date(s.created_at).toLocaleString("uz-UZ")}
-      </div>
-
-      <div class="story-content">
-        ${escapeHtml(s.content)}
-      </div>
-
-      ${media}
-
-      <div class="btnrow">
-
-        <button onclick="readStory('${s.id}')">
-          📖 O‘qish
-        </button>
-
-        <button onclick="editStoryById('${s.id}')">
-          ✏️ Tahrirlash
-        </button>
-
-        <button onclick="deleteStory('${s.id}')">
-          🗑️ O‘chirish
-        </button>
-
-        ${
-          s.is_public?
-          `<button onclick="copyStoryLink('${escapeHtml(s.share_token)}')">
-            🔗 Hikoya linki
-          </button>`:""
-        }
-
-      </div>
-
-      ${
-        s.is_public?
-        `<div class="small">
-          🔓 Ommaviy
-          ${
-            s.story_password_hash?
-            " • 🔐 Parol bilan himoyalangan":""
-          }
-        </div>`:
-        `<div class="small">🔒 Yopiq</div>`
-      }
-
-    </div>
-  `;
+ ${s.image_path?mediaButtons(s,"image","Rasm"):""}
+ ${s.video_path?mediaButtons(s,"video","Video"):""}
+ ${s.audio_path?mediaButtons(s,"audio","Audio"):""}
+ ${s.voice_path?mediaButtons(s,"voice","Ovoz"):""}
+ </article>`;
 }
 
-function editStoryById(id){
-  const story=
-    stories.find(s=>s.id===id);
+function mediaButtons(s,type,label){
+ const l=mediaLink(s.share_token,type);
+ return `<div class="row" style="margin-top:6px">
+ <button class="alt" onclick="copyText('${esc(l)}')">${label} linkini nusxalash</button>
+ </div>`;
+  }async function readStory(id){
+ const {data,error}=await sb.from("stories").select("*").eq("id",id).single();
+ if(error)return toast(error.message);
 
-  if(story)editStory(story);
+ app.innerHTML=`
+ <div class="box">
+ <button class="alt" onclick="renderHome()">← Orqaga</button>
+ <h1>${esc(data.title)}</h1>
+ <div class="date">${dateText(data.created_at)}</div>
+ <hr>
+ <div style="white-space:pre-wrap">${esc(data.content||"")}</div>
+ ${data.image_path?`<div class="media"><img src="${esc(publicMedia(data.image_path))}"></div>`:""}
+ ${data.video_path?`<div class="media"><video controls src="${esc(publicMedia(data.video_path))}"></video>`:""}
+ ${data.audio_path?`<div class="media"><audio controls src="${esc(publicMedia(data.audio_path))}"></audio>`:""}
+ ${data.voice_path?`<div class="media"><audio controls src="${esc(publicMedia(data.voice_path))}"></audio>`:""}
+ <button style="margin-top:15px" onclick="copyText('${esc(storyLink(data.share_token))}')">Hikoya linkini nusxalash</button>
+ </div>`;
+}
+
+async function editStory(id){
+ const {data,error}=await sb.from("stories").select("*").eq("id",id).single();
+ if(error)return toast(error.message);
+
+ editingId=id;
+ resetFiles();
+
+ app.innerHTML=`
+ <div class="box">
+ <button class="alt" onclick="renderHome()">← Orqaga</button>
+ <h2>Hikoyani tahrirlash</h2>
+ <input id="title" value="${esc(data.title)}">
+ <textarea id="content">${esc(data.content||"")}</textarea>
+
+ <p class="small">Yangi fayl tanlasangiz eski fayl o‘rniga yangi fayl ishlatiladi.</p>
+ <input id="image" type="file" accept="image/*" onchange="selectedImage=this.files[0]">
+ <input id="video" type="file" accept="video/*" onchange="selectedVideo=this.files[0]">
+ <input id="audio" type="file" accept="audio/*" onchange="selectedAudio=this.files[0]">
+
+ <select id="public" style="width:100%;padding:12px;border-radius:10px">
+  <option value="true" ${data.is_public?"selected":""}>Ochiq</option>
+  <option value="false" ${!data.is_public?"selected":""}>Yopiq</option>
+ </select>
+
+ <input id="storyPassword" type="password" placeholder="Yangi parol (o‘zgartirmasangiz bo‘sh qoldiring)">
+
+ <div id="progressBox" class="hidden">
+  <progress id="progressBar" value="0" max="100"></progress>
+  <div id="progressText">0%</div>
+ </div>
+
+ <button class="green" style="width:100%" onclick="saveStory()">Saqlash</button>
+ </div>`;
 }
 
 async function deleteStory(id){
-  const story=
-    stories.find(s=>s.id===id);
+ if(!confirm("Bu hikoya o‘chirilsinmi?"))return;
 
-  if(!story)return;
+ const {data,error}=await sb.from("stories").select("*").eq("id",id).single();
+ if(error)return toast(error.message);
 
-  if(!confirm(
-    "Bu hikoyani o‘chirmoqchimisiz?"
-  ))return;
+ const paths=[data.image_path,data.video_path,data.audio_path,data.voice_path].filter(Boolean);
 
-  const paths=[
-    story.image_path,
-    story.video_path,
-    story.audio_path,
-    story.voice_path
-  ].filter(Boolean);
+ const {error:delError}=await sb.from("stories").delete().eq("id",id);
+ if(delError)return toast(delError.message);
 
-  if(paths.length){
-    await supabaseClient
-      .storage
-      .from(BUCKET)
-      .remove(paths);
-  }
+ if(paths.length){
+  const {error:e}=await sb.storage.from(BUCKET).remove(paths);
+  if(e)console.warn(e);
+ }
 
-  const {error}=
-    await supabaseClient
-      .from("stories")
-      .delete()
-      .eq("id",id);
-
-  if(error){
-    alert(error.message);
-    return;
-  }
-
-  await loadStories();
+ toast("Hikoya o‘chirildi");
+ loadStories();
 }
 
-function copyStoryLink(token){
-  copyText(getStoryLink(token));
-}
-
-function copyMediaLink(token,type){
-  copyText(getMediaLink(token,type));
-}
-
-function readStory(id){
-  const story=
-    stories.find(s=>s.id===id);
-
-  if(!story)return;
-
-  renderReader(story);
-}
-
-function renderReader(s){
-  document.body.innerHTML=`
-    <div class="container">
-      <div class="card">
-        <button onclick="location.reload()">
-          ← Orqaga
-        </button>
-
-        <h1>${escapeHtml(s.title)}</h1>
-
-        <div class="date">
-          ${new Date(s.created_at).toLocaleString("uz-UZ")}
-        </div>
-
-        <div class="story-content">
-          ${escapeHtml(s.content)}
-        </div>
-
-        ${
-          s.image_path?
-          `<img class="media"
-                src="${publicMediaUrl(s.image_path)}">`:""
-        }
-
-        ${
-          s.video_path?
-          `<video class="media"
-                  controls
-                  src="${publicMediaUrl(s.video_path)}">
-          </video>`:""
-        }
-
-        ${
-          s.audio_path?
-          `<audio class="media"
-                  controls
-                  src="${publicMediaUrl(s.audio_path)}">
-          </audio>`:""
-        }
-
-        ${
-          s.voice_path?
-          `<audio class="media"
-                  controls
-                  src="${publicMediaUrl(s.voice_path)}">
-          </audio>`:""
-        }
-      </div>
-    </div>
-  `;
-}
-
-async function openPublicStory(token){
-  const {data,error}=
-    await supabaseClient
-      .rpc("get_public_story",{
-        p_token:token
-      });
-
-  if(error||!data?.length){
-    showPublicError(
-      "Hikoya topilmadi yoki o‘chirilgan."
-    );
-    return;
-  }
-
-  const story=data[0];
-
-  if(story.is_password_protected){
-    pendingStory=story;
-    $("passwordModal").classList.remove("hidden");
-    return;
-  }
-
-  showOnlyStory(story);
-}
-
-async function verifyReaderPassword(){
-  if(!pendingStory)return;
-
-  const password=
-    $("readerPassword").value;
-
-  const {data,error}=
-    await supabaseClient
-      .rpc("verify_story_password",{
-        p_token:pendingStory.share_token,
-        p_password:password
-      });
-
-  if(error||!data?.length){
-    showStatus(
-      "readerPasswordStatus",
-      "Parol noto‘g‘ri."
-    );
-    return;
-  }
-
-  closeModal("passwordModal");
-
-  showOnlyStory({
-    ...pendingStory,
-    ...data[0]
-  });
-
-  pendingStory=null;
-}
-
-function showOnlyStory(s){
-  document.body.innerHTML=`
-    <div class="container">
-      <div class="card">
-
-        <h1>${escapeHtml(s.title)}</h1>
-
-        <div class="date">
-          ${new Date(s.created_at).toLocaleString("uz-UZ")}
-        </div>
-
-        <div class="story-content">
-          ${escapeHtml(s.content||"")}
-        </div>
-
-        ${
-          s.image_path?
-          `<img class="media"
-                src="${publicMediaUrl(s.image_path)}">`:""
-        }
-
-        ${
-          s.video_path?
-          `<video class="media"
-                  controls
-                  src="${publicMediaUrl(s.video_path)}">
-          </video>`:""
-        }
-
-        ${
-          s.audio_path?
-          `<audio class="media"
-                  controls
-                  src="${publicMediaUrl(s.audio_path)}">
-          </audio>`:""
-        }
-
-        ${
-          s.voice_path?
-          `<audio class="media"
-                  controls
-                  src="${publicMediaUrl(s.voice_path)}">
-          </audio>`:""
-        }
-
-      </div>
-    </div>
-  `;
-}
-
-async function openPublicMedia(token,type){
-  const {data,error}=
-    await supabaseClient
-      .rpc("get_public_story",{
-        p_token:token
-      });
-
-  if(error||!data?.length){
-    showPublicError("Media topilmadi.");
-    return;
-  }
-
-  const story=data[0];
-
-  if(story.is_password_protected){
-    showPublicError(
-      "Bu media parol bilan himoyalangan. Avval hikoya linkini oching."
-    );
-    return;
-  }
-
-  showOnlyMedia(story,type);
-}
-
-function showOnlyMedia(story,type){
-  let path=null;
-  let title="";
-
-  if(type==="image"){
-    path=story.image_path;
-    title="🖼️ Rasm";
-  }
-
-  if(type==="video"){
-    path=story.video_path;
-    title="🎬 Video";
-  }
-
-  if(type==="audio"){
-    path=story.audio_path;
-    title="🎵 Audio";
-  }
-
-  if(type==="voice"){
-    path=story.voice_path;
-    title="🎤 Ovoz";
-  }
-
-  if(!path){
-    showPublicError("Media mavjud emas.");
-    return;
-  }
-
-  const url=publicMediaUrl(path);
-
-  let media="";
-
-  if(type==="image"){
-    media=
-      `<img class="media" src="${url}">`;
-  }
-
-  if(type==="video"){
-    media=
-      `<video class="media"
-              controls
-              autoplay
-              src="${url}">
-       </video>`;
-  }
-
-  if(type==="audio"||type==="voice"){
-    media=
-      `<audio class="media"
-              controls
-              autoplay
-              src="${url}">
-       </audio>`;
-  }
-
-  document.body.innerHTML=`
-    <div class="container">
-      <div class="card">
-
-        <h1>${escapeHtml(title)}</h1>
-
-        <div class="date">
-          ${new Date(story.created_at)
-            .toLocaleString("uz-UZ")}
-        </div>
-
-        ${media}
-
-        <div class="small">
-          ${escapeHtml(story.title)}
-        </div>
-
-      </div>
-    </div>
-  `;
- }<script>
 function showQuotes(){
-  $("quotesList").innerHTML=
-    quotes.map(q=>`
-      <div class="quote">
+ app.innerHTML=`
+ <header>
+  <button class="alt" onclick="renderHome()">← Orqaga</button>
+  <h1>Iqtiboslar</h1>
+ </header>
+ <div id="quotes"></div>`;
 
-        <div class="quote-text">
-          “${escapeHtml(q.text)}”
-        </div>
-
-        <div class="btnrow">
-
-          <button onclick="copyQuoteLink('${q.id}')">
-            🔗 Linkni nusxalash
-          </button>
-
-          <button onclick="shareQuoteTelegram('${q.id}')">
-            📲 Telegram
-          </button>
-
-        </div>
-
-      </div>
-    `).join("");
+ document.getElementById("quotes").innerHTML=quotes.map((q,i)=>{
+  const l=quoteLink(i);
+  return `<div class="quote">
+   <p>${esc(q)}</p>
+   <div class="row">
+    <button onclick="copyText('${esc(l)}')">Linkni nusxalash</button>
+    <button class="alt" onclick="telegram('${esc(l)}')">Telegram</button>
+   </div>
+   <div class="linkbox">${esc(l)}</div>
+  </div>`;
+ }).join("");
 }
 
-function copyQuoteLink(id){
-  copyText(getQuoteLink(id));
+function showQuoteOnly(i){
+ const q=quotes[i];
+ if(q===undefined)return renderHome();
+ const l=quoteLink(i);
+
+ document.body.innerHTML=`
+ <div id="app">
+  <div class="box" style="margin:30px auto;max-width:700px">
+   <h1>Munisam hikoyalari</h1>
+   <div class="quote"><p>${esc(q)}</p></div>
+   <div class="row">
+    <button onclick="copyText('${esc(l)}')">Linkni nusxalash</button>
+    <button class="alt" onclick="telegram('${esc(l)}')">Telegram</button>
+   </div>
+   <div class="linkbox" style="margin-top:10px">${esc(l)}</div>
+  </div>
+ </div>`;
 }
 
-function shareQuoteTelegram(id){
-  const quote=
-    quotes.find(q=>q.id===id);
+async function publicStory(token){
+ const {data,error}=await sb.rpc("get_public_story",{p_token:token});
+ if(error||!data?.length){
+  document.body.innerHTML="<div class='box' style='margin:30px'>Hikoya topilmadi.</div>";
+  return;
+ }
+ const s=data[0];
 
-  if(!quote)return;
-
-  const url=getQuoteLink(id);
-
-  const telegram=
-    "https://t.me/share/url?url="+
-    encodeURIComponent(url)+
-    "&text="+
-    encodeURIComponent(
-      "“"+quote.text+"”"
-    );
-
-  window.open(
-    telegram,
-    "_blank"
-  );
-}
-
-function showQuoteOnly(id){
-  const quote=
-    quotes.find(q=>q.id===id);
-
-  if(!quote){
-    showPublicError(
-      "Iqtibos topilmadi."
-    );
-    return;
-  }
-
-  const url=getQuoteLink(id);
-
+ if(s.is_password_protected){
   document.body.innerHTML=`
-    <div class="container">
-      <div class="card">
-
-        <h1>💬 Iqtibos</h1>
-
-        <div class="quote">
-          <div class="quote-text">
-            “${escapeHtml(quote.text)}”
-          </div>
-        </div>
-
-        <button onclick="copyText('${url}')">
-          🔗 Iqtibos linkini nusxalash
-        </button>
-
-        <button onclick="shareQuoteTelegram('${id}')">
-          📲 Telegramga yuborish
-        </button>
-
-      </div>
-    </div>
-  `;
+   <div class="auth">
+    <h2>${esc(s.title)}</h2>
+    <p>Bu hikoya parol bilan himoyalangan.</p>
+    <input id="publicPassword" type="password" placeholder="Parol">
+    <button style="width:100%" onclick="verifyPublic('${esc(token)}')">Ochish</button>
+   </div>`;
+  return;
+ }
+ showPublicStory(s);
 }
 
-function showPublicError(text){
-  document.body.innerHTML=`
-    <div class="container">
-      <div class="card">
-        <h2>😔 ${escapeHtml(text)}</h2>
-      </div>
-    </div>
-  `;
+async function verifyPublic(token){
+ const p=document.getElementById("publicPassword").value;
+ if(!p)return toast("Parolni kiriting");
+
+ const {data,error}=await sb.rpc("verify_story_password",{
+  p_token:token,p_password:p
+ });
+ if(error||!data?.length)return toast("Parol noto‘g‘ri");
+
+ showPublicStory(data[0]);
 }
 
-async function checkUser(){
-  const {data}=await supabaseClient.auth.getSession();
+function showPublicStory(s){
+ document.body.innerHTML=`
+ <div id="app">
+ <div class="box" style="max-width:850px;margin:25px auto">
+  <h1>${esc(s.title)}</h1>
+  <div class="date">${dateText(s.created_at)}</div>
+  <hr>
+  <div style="white-space:pre-wrap">${esc(s.content||"")}</div>
+  ${s.image_path?`<div class="media"><img src="${esc(publicMedia(s.image_path))}"></div>`:""}
+  ${s.video_path?`<div class="media"><video controls src="${esc(publicMedia(s.video_path))}"></video></div>`:""}
+  ${s.audio_path?`<div class="media"><audio controls src="${esc(publicMedia(s.audio_path))}"></audio></div>`:""}
+  ${s.voice_path?`<div class="media"><audio controls src="${esc(publicMedia(s.voice_path))}"></audio></div>`:""}
+ </div>
+ </div>`;
+}async function publicMediaPage(token,type){
+ const {data,error}=await sb.rpc("get_public_story",{p_token:token});
 
-  currentUser=data.session?.user||null;
+ if(error||!data?.length){
+  document.body.innerHTML="<div class='box' style='margin:30px'>Media topilmadi.</div>";
+  return;
+ }
 
-  await updateAuthUI();
+ const s=data[0];
+ let path=null;
 
-  if(currentUser){
-    await loadStories();
-  }
+ if(type==="image")path=s.image_path;
+ if(type==="video")path=s.video_path;
+ if(type==="audio")path=s.audio_path;
+ if(type==="voice")path=s.voice_path;
+
+ if(!path){
+  document.body.innerHTML="<div class='box' style='margin:30px'>Bu media mavjud emas.</div>";
+  return;
+ }
+
+ const url=publicMedia(path);
+ let media="";
+
+ if(type==="image")
+  media=`<img class="media" src="${esc(url)}">`;
+
+ if(type==="video")
+  media=`<video class="media" controls autoplay src="${esc(url)}"></video>`;
+
+ if(type==="audio"||type==="voice")
+  media=`<audio class="media" controls autoplay src="${esc(url)}"></audio>`;
+
+ const link=mediaLink(token,type);
+
+ document.body.innerHTML=`
+ <div id="app">
+  <div class="box" style="max-width:850px;margin:25px auto">
+   <h1>${esc(s.title)}</h1>
+   <div class="date">${dateText(s.created_at)}</div>
+   <hr>
+   ${media}
+   <div class="linkbox" style="margin-top:15px">${esc(link)}</div>
+   <button style="margin-top:8px" onclick="copyText('${esc(link)}')">Linkni nusxalash</button>
+  </div>
+ </div>`;
 }
 
-function handleInitialUrl(){
-  const params=
-    new URLSearchParams(
-      location.search
-    );
+function handleUrl(){
+ const p=new URLSearchParams(location.search);
 
-  const story=
-    params.get("story");
+ const quote=p.get("quote");
+ const story=p.get("story");
+ const media=p.get("media");
+ const type=p.get("type");
 
-  const quote=
-    params.get("quote");
+ if(quote!==null){
+  showQuoteOnly(Number(quote));
+  return true;
+ }
 
-  const media=
-    params.get("media");
+ if(story){
+  publicStory(story);
+  return true;
+ }
 
-  const type=
-    params.get("type");
+ if(media&&type){
+  publicMediaPage(media,type);
+  return true;
+ }
 
-  const recovery=
-    params.get("recovery");
-
-  if(recovery==="1"){
-    $("recoveryModal")
-      .classList.remove("hidden");
-    return;
-  }
-
-  if(quote){
-    showQuoteOnly(quote);
-    return;
-  }
-
-  if(story){
-    openPublicStory(story);
-    return;
-  }
-
-  if(media&&type){
-    openPublicMedia(media,type);
-    return;
-  }
+ return false;
 }
 
-supabaseClient.auth.onAuthStateChange(
-  async(event,session)=>{
-    currentUser=
-      session?.user||null;
+sb.auth.onAuthStateChange(async(event,session)=>{
+ if(event==="PASSWORD_RECOVERY"){
+  currentUser=session?.user||null;
+  app.innerHTML=`
+  <div class="auth">
+   <h2>Yangi parol</h2>
+   <input id="newPass" type="password" placeholder="Yangi parol">
+   <button style="width:100%" onclick="changePassword()">Saqlash</button>
+  </div>`;
+ }
+});
 
-    if(event==="PASSWORD_RECOVERY"){
-      $("recoveryModal")
-        .classList.remove("hidden");
-    }
+async function changePassword(){
+ const p=document.getElementById("newPass").value;
+ if(p.length<6)return toast("Parol kamida 6 belgidan iborat bo‘lsin");
 
-    await updateAuthUI();
+ const {error}=await sb.auth.updateUser({password:p});
+ if(error)return toast(error.message);
 
-    if(currentUser){
-      await loadStories();
-    }
-  }
-);
+ toast("Parol o‘zgartirildi");
+ setTimeout(init,700);
+}
 
-document.addEventListener(
-  "keydown",
-  e=>{
-    if(e.key==="Escape"){
-      closeModal("passwordModal");
-      closeModal("recoveryModal");
-    }
-  }
-);
-
-document.addEventListener(
-  "DOMContentLoaded",
-  async()=>{
-    showQuotes();
-    await checkUser();
-    handleInitialUrl();
-  }
-);
+(async()=>{
+ if(handleUrl())return;
+ await init();
+})();
 </script>
-
 </body>
 </html>
