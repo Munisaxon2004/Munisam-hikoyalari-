@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Munisam hikoyalari</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 *{box-sizing:border-box}
 body{
  margin:0;min-height:100vh;font-family:Arial,sans-serif;color:#222;
  background:linear-gradient(#0003,#0005),url("IMG_20260708_133902_971.jpg") center/cover fixed;
 }
-button,input,textarea{font:inherit}
+button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 #app{max-width:900px;margin:auto;padding:18px}
 header,.box,.story,.quote,.auth{
@@ -41,7 +42,7 @@ textarea{min-height:140px;resize:vertical}
 .media img,.media video,.media audio{
  max-width:100%;width:100%;border-radius:12px
 }
-.quote{border-left:5px solid #333}
+.quote{border-left:5px solid #333;position:relative}
 .small{font-size:13px;color:#555}
 .linkbox{word-break:break-all;background:#eee;padding:9px;border-radius:8px}
 #progressBox{margin-top:8px}
@@ -54,9 +55,51 @@ textarea{min-height:140px;resize:vertical}
 .auth{max-width:500px;margin:40px auto}
 .center{text-align:center}
 .back{margin-bottom:15px}
+
+/* ⋮ menyu */
+.more{
+ position:absolute;
+ top:12px;
+ right:12px;
+}
+.more button{
+ width:38px;
+ height:38px;
+ padding:0;
+ font-size:23px;
+ line-height:38px;
+ background:#eee;
+ color:#222;
+}
+.more-menu{
+ display:none;
+ position:absolute;
+ right:0;
+ top:44px;
+ width:190px;
+ background:white;
+ border-radius:12px;
+ padding:6px;
+ box-shadow:0 5px 25px #0004;
+ z-index:20;
+}
+.more-menu.show{display:block}
+.more-menu button{
+ width:100%;
+ height:auto;
+ padding:10px 12px;
+ text-align:left;
+ background:white;
+ color:#222;
+ font-size:14px;
+}
+.more-menu button:hover{background:#eee}
+.more-menu button.red-item{color:#b3261e}
+
 hr{border:0;border-top:1px solid #ddd;margin:18px 0}
 </style>
 </head>
+
 <body>
 <div id="app"></div>
 <div id="toast"></div>
@@ -88,18 +131,50 @@ const quotes=[
 
 function toast(t){
  const x=document.getElementById("toast");
- x.textContent=t;x.style.display="block";
+ x.textContent=t;
+ x.style.display="block";
  clearTimeout(window.toastTimer);
  window.toastTimer=setTimeout(()=>x.style.display="none",2500);
 }
 
 function esc(v=""){
  return String(v).replace(/[&<>"']/g,m=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+ "&":"&amp;",
+ "<":"&lt;",
+ ">":"&gt;",
+ '"':"&quot;",
+ "'":"&#039;"
  }[m]));
 }
 
-function uid(){return crypto.randomUUID()}
+function uid(){
+ return crypto.randomUUID();
+}
+
+/* Yangi slug avtomatik yaratiladi */
+function makeSlug(text){
+ let s=String(text||"").toLowerCase();
+
+ const map={
+  "а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"yo",
+  "ж":"j","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m",
+  "н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u",
+  "ф":"f","х":"x","ц":"c","ч":"ch","ш":"sh","щ":"sh",
+  "ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya"
+ };
+
+ s=s.replace(/[а-яёъыь]/g,ch=>map[ch]??ch);
+
+ s=s
+  .replace(/o‘|oʻ|o’|o'/g,"o")
+  .replace(/g‘|gʻ|g’|g'/g,"g")
+  .replace(/[^a-z0-9]+/g,"-")
+  .replace(/^-+|-+$/g,"");
+
+ if(!s)s="hikoya";
+
+ return s+"-"+uid().slice(0,8);
+}
 
 function dateText(d){
  return new Date(d).toLocaleString("uz-UZ");
@@ -115,7 +190,8 @@ function storyLink(token){
 }
 
 function mediaLink(token,type){
- return location.origin+location.pathname+"?media="+encodeURIComponent(token)+"&type="+encodeURIComponent(type);
+ return location.origin+location.pathname+
+ "?media="+encodeURIComponent(token)+"&type="+encodeURIComponent(type);
 }
 
 function quoteLink(i){
@@ -128,14 +204,36 @@ async function copyText(t){
   toast("Link nusxalandi");
  }catch{
   const a=document.createElement("textarea");
-  a.value=t;document.body.appendChild(a);a.select();
-  document.execCommand("copy");a.remove();toast("Link nusxalandi");
+  a.value=t;
+  document.body.appendChild(a);
+  a.select();
+  document.execCommand("copy");
+  a.remove();
+  toast("Link nusxalandi");
  }
 }
 
 function telegram(t){
  location.href="https://t.me/share/url?url="+encodeURIComponent(t);
 }
+
+function toggleMenu(id){
+ const menu=document.getElementById(id);
+ if(!menu)return;
+
+ document.querySelectorAll(".more-menu.show").forEach(x=>{
+  if(x!==menu)x.classList.remove("show");
+ });
+
+ menu.classList.toggle("show");
+}
+
+document.addEventListener("click",e=>{
+ if(!e.target.closest(".more")){
+  document.querySelectorAll(".more-menu.show")
+   .forEach(x=>x.classList.remove("show"));
+ }
+});
 
 async function user(){
  const {data}=await sb.auth.getUser();
@@ -148,49 +246,77 @@ function isAdmin(){
 }
 
 function resetFiles(){
- selectedImage=null;selectedVideo=null;selectedAudio=null;selectedVoice=null;
+ selectedImage=null;
+ selectedVideo=null;
+ selectedAudio=null;
+ selectedVoice=null;
 }
 
 function renderAuth(){
  app.innerHTML=`
  <div class="auth">
- <h1 class="center">Munisam hikoyalari</h1>
- <p class="center">Kirish yoki yangi hisob yaratish</p>
- <input id="email" type="email" placeholder="Email">
- <input id="password" type="password" placeholder="Parol">
- <div class="row">
-  <button onclick="login()">Kirish</button>
-  <button class="alt" onclick="register()">Ro‘yxatdan o‘tish</button>
- </div>
- <button class="alt" style="width:100%;margin-top:8px" onclick="forgot()">Parolni tiklash</button>
+  <h1 class="center">Munisam hikoyalari</h1>
+  <p class="center">Kirish yoki yangi hisob yaratish</p>
+
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Parol">
+
+  <div class="row">
+   <button onclick="login()">Kirish</button>
+   <button class="alt" onclick="register()">Ro‘yxatdan o‘tish</button>
+  </div>
+
+  <button class="alt" style="width:100%;margin-top:8px"
+   onclick="forgot()">Parolni tiklash</button>
  </div>`;
 }
 
 async function login(){
  const email=document.getElementById("email").value.trim();
  const password=document.getElementById("password").value;
- if(!email||!password)return toast("Email va parolni kiriting");
- const {error}=await sb.auth.signInWithPassword({email,password});
+
+ if(!email||!password)
+  return toast("Email va parolni kiriting");
+
+ const {error}=await sb.auth.signInWithPassword({
+  email,
+  password
+ });
+
  if(error)return toast(error.message);
+
  await init();
 }
 
 async function register(){
  const email=document.getElementById("email").value.trim();
  const password=document.getElementById("password").value;
- if(!email||password.length<6)return toast("Email va kamida 6 belgili parol kerak");
- const {error}=await sb.auth.signUp({email,password});
+
+ if(!email||password.length<6)
+  return toast("Email va kamida 6 belgili parol kerak");
+
+ const {error}=await sb.auth.signUp({
+  email,
+  password
+ });
+
  if(error)return toast(error.message);
+
  toast("Ro‘yxatdan o‘tish muvaffaqiyatli");
 }
 
 async function forgot(){
  const email=document.getElementById("email").value.trim();
- if(!email)return toast("Avval email yozing");
+
+ if(!email)
+  return toast("Avval email yozing");
+
  const {error}=await sb.auth.resetPasswordForEmail(email,{
   redirectTo:location.origin+location.pathname
  });
+
  if(error)return toast(error.message);
+
  toast("Parolni tiklash havolasi emailga yuborildi");
 }
 
@@ -202,7 +328,12 @@ async function logout(){
 
 async function init(){
  await user();
- if(!currentUser){renderAuth();return}
+
+ if(!currentUser){
+  renderAuth();
+  return;
+ }
+
  renderHome();
 }
 
@@ -211,6 +342,7 @@ async function renderHome(){
  <header>
   <h1>Munisam hikoyalari</h1>
   <p class="small">${esc(currentUser.email)}</p>
+
   <nav>
    <button onclick="renderHome()">Bosh sahifa</button>
    <button onclick="showAdd()">+ Hikoya</button>
@@ -218,105 +350,165 @@ async function renderHome(){
    <button class="alt" onclick="logout()">Chiqish</button>
   </nav>
  </header>
+
  <div class="box">
-  <input id="search" placeholder="Hikoya qidirish..." oninput="loadStories()">
+  <input id="search"
+   placeholder="Hikoya qidirish..."
+   oninput="loadStories()">
  </div>
+
  <div id="stories"></div>`;
+
  await loadStories();
-}function showAdd(){
- editingId=null;
- resetFiles();
- app.innerHTML=`
- <div class="box">
- <button class="alt back" onclick="renderHome()">← Orqaga</button>
- <h2>Yangi hikoya</h2>
- <input id="title" placeholder="Hikoya nomi">
- <textarea id="content" placeholder="Hikoya matni"></textarea>
-
- <label><b>Rasm</b></label>
- <input id="image" type="file" accept="image/*" onchange="selectedImage=this.files[0]">
-
- <label><b>Video</b></label>
- <input id="video" type="file" accept="video/*" onchange="selectedVideo=this.files[0]">
-
- <label><b>Musiqa/audio</b></label>
- <input id="audio" type="file" accept="audio/*" onchange="selectedAudio=this.files[0]">
-
- <label><b>Ovoz yozish</b></label>
- <div class="row">
-  <button type="button" onclick="startVoice()">🎙 Boshlash</button>
-  <button type="button" class="red" onclick="stopVoice()">To‘xtatish</button>
- </div>
- <p id="voiceStatus" class="small"></p>
-
- <label><b>Hikoya turi</b></label>
- <select id="public" style="width:100%;padding:12px;border-radius:10px">
-  <option value="true">Ochiq</option>
-  <option value="false">Yopiq</option>
- </select>
-
- <input id="storyPassword" type="password" placeholder="Parol (ixtiyoriy)">
-
- <div id="progressBox" class="hidden">
-  <progress id="progressBar" value="0" max="100"></progress>
-  <div id="progressText">0%</div>
- </div>
-
- <button class="green" style="width:100%;margin-top:12px" onclick="saveStory()">Saqlash</button>
- </div>`;
 }
 
+function showAdd(){
+ editingId=null;
+ resetFiles();
+
+ app.innerHTML=`
+ <div class="box">
+  <button class="alt back" onclick="renderHome()">← Orqaga</button>
+
+  <h2>Yangi hikoya</h2>
+
+  <input id="title" placeholder="Hikoya nomi">
+
+  <textarea id="content"
+   placeholder="Hikoya matni"></textarea>
+
+  <label><b>Rasm</b></label>
+  <input id="image" type="file"
+   accept="image/*"
+   onchange="selectedImage=this.files[0]">
+
+  <label><b>Video</b></label>
+  <input id="video" type="file"
+   accept="video/*"
+   onchange="selectedVideo=this.files[0]">
+
+  <label><b>Musiqa/audio</b></label>
+  <input id="audio" type="file"
+   accept="audio/*"
+   onchange="selectedAudio=this.files[0]">
+
+  <label><b>Ovoz yozish</b></label>
+
+  <div class="row">
+   <button type="button" onclick="startVoice()">🎙 Boshlash</button>
+   <button type="button" class="red" onclick="stopVoice()">To‘xtatish</button>
+  </div>
+
+  <p id="voiceStatus" class="small"></p>
+
+  <label><b>Hikoya turi</b></label>
+
+  <select id="public"
+   style="width:100%;padding:12px;border-radius:10px">
+   <option value="true">Ochiq</option>
+   <option value="false">Yopiq</option>
+  </select>
+
+  <input id="storyPassword"
+   type="password"
+   placeholder="Parol (ixtiyoriy)">
+
+  <div id="progressBox" class="hidden">
+   <progress id="progressBar"
+    value="0" max="100"></progress>
+   <div id="progressText">0%</div>
+  </div>
+
+  <button class="green"
+   style="width:100%;margin-top:12px"
+   onclick="saveStory()">Saqlash</button>
+ </div>`;
+}<script>
 async function startVoice(){
  try{
   const stream=await navigator.mediaDevices.getUserMedia({audio:true});
   voiceChunks=[];
+
   recorder=new MediaRecorder(stream);
-  recorder.ondataavailable=e=>{if(e.data.size)voiceChunks.push(e.data)};
+
+  recorder.ondataavailable=e=>{
+   if(e.data.size)voiceChunks.push(e.data);
+  };
+
   recorder.onstop=()=>{
    selectedVoice=new File(
     [new Blob(voiceChunks,{type:"audio/webm"})],
-    "voice.webm",{type:"audio/webm"}
+    "voice.webm",
+    {type:"audio/webm"}
    );
+
    stream.getTracks().forEach(t=>t.stop());
-   document.getElementById("voiceStatus").textContent="Ovoz yozib olindi.";
+
+   const status=document.getElementById("voiceStatus");
+   if(status)status.textContent="Ovoz yozib olindi.";
   };
+
   recorder.start();
-  document.getElementById("voiceStatus").textContent="Yozilmoqda...";
+
+  document.getElementById("voiceStatus").textContent=
+   "Yozilmoqda...";
  }catch(e){
   toast("Mikrofonga ruxsat berilmadi");
  }
 }
 
 function stopVoice(){
- if(recorder&&recorder.state!=="inactive")recorder.stop();
+ if(recorder&&recorder.state!=="inactive")
+  recorder.stop();
 }
 
 function progress(n){
  const box=document.getElementById("progressBox");
  const bar=document.getElementById("progressBar");
  const txt=document.getElementById("progressText");
+
  if(!box||!bar)return;
+
  box.classList.remove("hidden");
- bar.value=n;txt.textContent=n+"%";
+ bar.value=n;
+
+ if(txt)txt.textContent=n+"%";
 }
 
 async function uploadFile(file,folder){
  if(!file)return null;
- const ext=(file.name.split(".").pop()||"bin").replace(/[^a-z0-9]/gi,"");
- const path=currentUser.id+"/"+folder+"/"+uid()+"."+ext;
+
+ const ext=(file.name.split(".").pop()||"bin")
+  .replace(/[^a-z0-9]/gi,"");
+
+ const path=
+  currentUser.id+"/"+folder+"/"+uid()+"."+ext;
+
  progress(10);
- const {error}=await sb.storage.from(BUCKET).upload(path,file,{
-  cacheControl:"3600",upsert:false
- });
+
+ const {error}=await sb.storage
+  .from(BUCKET)
+  .upload(path,file,{
+   cacheControl:"3600",
+   upsert:false
+  });
+
  if(error)throw error;
+
  progress(100);
  return path;
 }
 
 async function hashPassword(p){
  if(!p)return null;
- const {data,error}=await sb.rpc("hash_story_password",{p_password:p});
+
+ const {data,error}=await sb.rpc(
+  "hash_story_password",
+  {p_password:p}
+ );
+
  if(error)throw error;
+
  return data;
 }
 
@@ -324,18 +516,35 @@ async function saveStory(){
  try{
   const title=document.getElementById("title").value.trim();
   const content=document.getElementById("content").value;
-  const isPublic=document.getElementById("public").value==="true";
-  const password=document.getElementById("storyPassword").value;
+  const isPublic=
+   document.getElementById("public").value==="true";
+  const password=
+   document.getElementById("storyPassword").value;
 
-  if(!title)return toast("Hikoya nomini yozing");
-  if(!content.trim()&&!selectedImage&&!selectedVideo&&!selectedAudio&&!selectedVoice)
+  if(!title)
+   return toast("Hikoya nomini yozing");
+
+  if(
+   !content.trim() &&
+   !selectedImage &&
+   !selectedVideo &&
+   !selectedAudio &&
+   !selectedVoice
+  )
    return toast("Hikoya yoki media qo‘shing");
 
   progress(5);
 
   let old=null;
+
   if(editingId){
-   const {data}=await sb.from("stories").select("*").eq("id",editingId).single();
+   const {data,error}=await sb
+    .from("stories")
+    .select("*")
+    .eq("id",editingId)
+    .single();
+
+   if(error)throw error;
    old=data;
   }
 
@@ -344,35 +553,87 @@ async function saveStory(){
   let audio_path=old?.audio_path||null;
   let voice_path=old?.voice_path||null;
 
-  if(selectedImage)image_path=await uploadFile(selectedImage,"images");
-  if(selectedVideo)video_path=await uploadFile(selectedVideo,"videos");
-  if(selectedAudio)audio_path=await uploadFile(selectedAudio,"audio");
-  if(selectedVoice)voice_path=await uploadFile(selectedVoice,"voice");
+  if(selectedImage)
+   image_path=await uploadFile(selectedImage,"images");
 
-  let story_password_hash=old?.story_password_hash||null;
-  if(password)story_password_hash=await hashPassword(password);
+  if(selectedVideo)
+   video_path=await uploadFile(selectedVideo,"videos");
+
+  if(selectedAudio)
+   audio_path=await uploadFile(selectedAudio,"audio");
+
+  if(selectedVoice)
+   voice_path=await uploadFile(selectedVoice,"voice");
+
+  let story_password_hash=
+   old?.story_password_hash||null;
+
+  if(password)
+   story_password_hash=await hashPassword(password);
+
+  /*
+   MUHIM:
+   slug bo‘sh qolmaydi.
+  */
+  let slug=old?.slug;
+
+  if(!slug || old?.title!==title){
+   slug=makeSlug(title);
+  }
 
   if(editingId){
-   const {error}=await sb.from("stories").update({
-    title,content,is_public:isPublic,story_password_hash,
-    image_path,video_path,audio_path,voice_path
-   }).eq("id",editingId);
+
+   const {error}=await sb
+    .from("stories")
+    .update({
+     title,
+     content,
+     slug,
+     is_public:isPublic,
+     story_password_hash,
+     image_path,
+     video_path,
+     audio_path,
+     voice_path
+    })
+    .eq("id",editingId);
+
    if(error)throw error;
+
   }else{
-   const {error}=await sb.from("stories").insert({
-    title,content,owner_id:currentUser.id,is_public:isPublic,
-    share_token:uid(),story_password_hash,
-    image_path,video_path,audio_path,voice_path
-   });
+
+   const {error}=await sb
+    .from("stories")
+    .insert({
+     title,
+     content,
+     slug,
+     owner_id:currentUser.id,
+     is_public:isPublic,
+     share_token:uid(),
+     story_password_hash,
+     image_path,
+     video_path,
+     audio_path,
+     voice_path
+    });
+
    if(error)throw error;
   }
 
   progress(100);
+
   toast("Hikoya saqlandi");
+
   setTimeout(renderHome,500);
+
  }catch(e){
   console.error(e);
-  toast("Saqlashda xato: "+(e.message||e));
+
+  toast(
+   "Saqlashda xato: "+
+   (e.message||e)
+  );
  }
 }
 
@@ -380,25 +641,37 @@ async function loadStories(){
  const box=document.getElementById("stories");
  if(!box)return;
 
- const q=(document.getElementById("search")?.value||"").toLowerCase();
+ const q=
+  (document.getElementById("search")?.value||"")
+  .toLowerCase();
 
- let query=sb.from("stories").select("*").order("created_at",{ascending:false});
+ let query=
+  sb.from("stories")
+  .select("*")
+  .order("created_at",{ascending:false});
 
- if(!isAdmin())query=query.eq("owner_id",currentUser.id);
+ if(!isAdmin())
+  query=query.eq("owner_id",currentUser.id);
 
  const {data,error}=await query;
+
  if(error){
-  box.innerHTML=`<div class="box">Xato: ${esc(error.message)}</div>`;
+  box.innerHTML=
+   `<div class="box">
+    Xato: ${esc(error.message)}
+   </div>`;
   return;
  }
 
  const arr=(data||[]).filter(s=>
-  !q||s.title.toLowerCase().includes(q)||
+  !q ||
+  s.title.toLowerCase().includes(q) ||
   (s.content||"").toLowerCase().includes(q)
  );
 
  if(!arr.length){
-  box.innerHTML="<div class='box'>Hozircha hikoyalar yo‘q.</div>";
+  box.innerHTML=
+   "<div class='box'>Hozircha hikoyalar yo‘q.</div>";
   return;
  }
 
@@ -407,59 +680,205 @@ async function loadStories(){
 
 function storyCard(s){
  const sl=storyLink(s.share_token);
+
  return `
  <article class="story">
- <h3>${esc(s.title)}</h3>
- <div class="date">${dateText(s.created_at)} · ${s.is_public?"Ochiq":"Yopiq"}</div>
- <p>${esc((s.content||"").slice(0,300))}${(s.content||"").length>300?"...":""}</p>
 
- ${s.image_path?`<div class="media"><img src="${esc(publicMedia(s.image_path))}"></div>`:""}
- ${s.video_path?`<div class="media"><video controls src="${esc(publicMedia(s.video_path))}"></video></div>`:""}
- ${s.audio_path?`<div class="media"><audio controls src="${esc(publicMedia(s.audio_path))}"></audio></div>`:""}
- ${s.voice_path?`<div class="media"><audio controls src="${esc(publicMedia(s.voice_path))}"></audio></div>`:""}
+  <div class="more">
+   <button onclick="toggleMenu('storyMenu_${s.id}')">⋮</button>
 
- <div class="row" style="margin-top:12px">
-  <button onclick="readStory('${s.id}')">O‘qish</button>
-  <button class="alt" onclick="copyText('${esc(sl)}')">Hikoya linki</button>
-  <button class="alt" onclick="editStory('${s.id}')">Tahrirlash</button>
-  <button class="red" onclick="deleteStory('${s.id}')">O‘chirish</button>
- </div>
+   <div id="storyMenu_${s.id}" class="more-menu">
 
- <div class="linkbox" style="margin-top:8px">${esc(sl)}</div>
+    <button onclick="copyText('${esc(sl)}')">
+     🔗 Linkni nusxalash
+    </button>
 
- ${s.image_path?mediaButtons(s,"image","Rasm"):""}
- ${s.video_path?mediaButtons(s,"video","Video"):""}
- ${s.audio_path?mediaButtons(s,"audio","Audio"):""}
- ${s.voice_path?mediaButtons(s,"voice","Ovoz"):""}
+    <button onclick="editStory('${s.id}')">
+     ✏️ Tahrirlash
+    </button>
+
+    <button class="red-item"
+     onclick="deleteStory('${s.id}')">
+     🗑️ O‘chirish
+    </button>
+
+   </div>
+  </div>
+
+  <h3>${esc(s.title)}</h3>
+
+  <div class="date">
+   ${dateText(s.created_at)}
+   ·
+   ${s.is_public?"Ochiq":"Yopiq"}
+  </div>
+
+  <p>
+   ${esc((s.content||"").slice(0,300))}
+   ${(s.content||"").length>300?"...":""}
+  </p>
+
+  ${
+   s.image_path
+   ?`<div class="media">
+      <img src="${esc(publicMedia(s.image_path))}">
+     </div>`
+   :""
+  }
+
+  ${
+   s.video_path
+   ?`<div class="media">
+      <video controls
+       src="${esc(publicMedia(s.video_path))}">
+      </video>
+     </div>`
+   :""
+  }
+
+  ${
+   s.audio_path
+   ?`<div class="media">
+      <audio controls
+       src="${esc(publicMedia(s.audio_path))}">
+      </audio>
+     </div>`
+   :""
+  }
+
+  ${
+   s.voice_path
+   ?`<div class="media">
+      <audio controls
+       src="${esc(publicMedia(s.voice_path))}">
+      </audio>
+     </div>`
+   :""
+  }
+
+  <button
+   style="margin-top:12px"
+   onclick="readStory('${s.id}')">
+   O‘qish
+  </button>
+
+  ${
+   s.image_path
+   ?mediaButtons(s,"image","Rasm")
+   :""
+  }
+
+  ${
+   s.video_path
+   ?mediaButtons(s,"video","Video")
+   :""
+  }
+
+  ${
+   s.audio_path
+   ?mediaButtons(s,"audio","Audio")
+   :""
+  }
+
+  ${
+   s.voice_path
+   ?mediaButtons(s,"voice","Ovoz")
+   :""
+  }
+
  </article>`;
 }
 
 function mediaButtons(s,type,label){
  const l=mediaLink(s.share_token,type);
- return `<div class="row" style="margin-top:6px">
- <button class="alt" onclick="copyText('${esc(l)}')">${label} linkini nusxalash</button>
+
+ return `
+ <div class="row" style="margin-top:6px">
+  <button class="alt"
+   onclick="copyText('${esc(l)}')">
+   ${label} linkini nusxalash
+  </button>
  </div>`;
-  }async function readStory(id){
- const {data,error}=await sb.from("stories").select("*").eq("id",id).single();
+}
+
+async function readStory(id){
+ const {data,error}=await sb
+  .from("stories")
+  .select("*")
+  .eq("id",id)
+  .single();
+
  if(error)return toast(error.message);
 
  app.innerHTML=`
  <div class="box">
- <button class="alt" onclick="renderHome()">← Orqaga</button>
- <h1>${esc(data.title)}</h1>
- <div class="date">${dateText(data.created_at)}</div>
- <hr>
- <div style="white-space:pre-wrap">${esc(data.content||"")}</div>
- ${data.image_path?`<div class="media"><img src="${esc(publicMedia(data.image_path))}"></div>`:""}
- ${data.video_path?`<div class="media"><video controls src="${esc(publicMedia(data.video_path))}"></video>`:""}
- ${data.audio_path?`<div class="media"><audio controls src="${esc(publicMedia(data.audio_path))}"></audio>`:""}
- ${data.voice_path?`<div class="media"><audio controls src="${esc(publicMedia(data.voice_path))}"></audio>`:""}
- <button style="margin-top:15px" onclick="copyText('${esc(storyLink(data.share_token))}')">Hikoya linkini nusxalash</button>
- </div>`;
-}
 
-async function editStory(id){
- const {data,error}=await sb.from("stories").select("*").eq("id",id).single();
+  <button class="alt"
+   onclick="renderHome()">← Orqaga</button>
+
+  <h1>${esc(data.title)}</h1>
+
+  <div class="date">
+   ${dateText(data.created_at)}
+  </div>
+
+  <hr>
+
+  <div style="white-space:pre-wrap">
+   ${esc(data.content||"")}
+  </div>
+
+  ${
+   data.image_path
+   ?`<div class="media">
+      <img src="${esc(publicMedia(data.image_path))}">
+     </div>`
+   :""
+  }
+
+  ${
+   data.video_path
+   ?`<div class="media">
+      <video controls
+       src="${esc(publicMedia(data.video_path))}">
+      </video>
+     </div>`
+   :""
+  }
+
+  ${
+   data.audio_path
+   ?`<div class="media">
+      <audio controls
+       src="${esc(publicMedia(data.audio_path))}">
+      </audio>
+     </div>`
+   :""
+  }
+
+  ${
+   data.voice_path
+   ?`<div class="media">
+      <audio controls
+       src="${esc(publicMedia(data.voice_path))}">
+      </audio>
+     </div>`
+   :""
+  }
+
+  <button style="margin-top:15px"
+   onclick="copyText('${esc(storyLink(data.share_token))}')">
+   Hikoya linkini nusxalash
+  </button>
+
+ </div>`;
+ }async function editStory(id){
+ const {data,error}=await sb
+  .from("stories")
+  .select("*")
+  .eq("id",id)
+  .single();
+
  if(error)return toast(error.message);
 
  editingId=id;
@@ -467,189 +886,466 @@ async function editStory(id){
 
  app.innerHTML=`
  <div class="box">
- <button class="alt" onclick="renderHome()">← Orqaga</button>
- <h2>Hikoyani tahrirlash</h2>
- <input id="title" value="${esc(data.title)}">
- <textarea id="content">${esc(data.content||"")}</textarea>
 
- <p class="small">Yangi fayl tanlasangiz eski fayl o‘rniga yangi fayl ishlatiladi.</p>
- <input id="image" type="file" accept="image/*" onchange="selectedImage=this.files[0]">
- <input id="video" type="file" accept="video/*" onchange="selectedVideo=this.files[0]">
- <input id="audio" type="file" accept="audio/*" onchange="selectedAudio=this.files[0]">
+  <button class="alt" onclick="renderHome()">
+   ← Orqaga
+  </button>
 
- <select id="public" style="width:100%;padding:12px;border-radius:10px">
-  <option value="true" ${data.is_public?"selected":""}>Ochiq</option>
-  <option value="false" ${!data.is_public?"selected":""}>Yopiq</option>
- </select>
+  <h2>Hikoyani tahrirlash</h2>
 
- <input id="storyPassword" type="password" placeholder="Yangi parol (o‘zgartirmasangiz bo‘sh qoldiring)">
+  <input id="title"
+   value="${esc(data.title)}"
+   placeholder="Hikoya nomi">
 
- <div id="progressBox" class="hidden">
-  <progress id="progressBar" value="0" max="100"></progress>
-  <div id="progressText">0%</div>
- </div>
+  <textarea id="content"
+   placeholder="Hikoya matni">${esc(data.content||"")}</textarea>
 
- <button class="green" style="width:100%" onclick="saveStory()">Saqlash</button>
+  <p class="small">
+   Yangi fayl tanlasangiz eski fayl o‘rniga yangi fayl ishlatiladi.
+  </p>
+
+  <input id="image"
+   type="file"
+   accept="image/*"
+   onchange="selectedImage=this.files[0]">
+
+  <input id="video"
+   type="file"
+   accept="video/*"
+   onchange="selectedVideo=this.files[0]">
+
+  <input id="audio"
+   type="file"
+   accept="audio/*"
+   onchange="selectedAudio=this.files[0]">
+
+  <select id="public"
+   style="width:100%;padding:12px;border-radius:10px">
+
+   <option value="true"
+    ${data.is_public?"selected":""}>
+    Ochiq
+   </option>
+
+   <option value="false"
+    ${!data.is_public?"selected":""}>
+    Yopiq
+   </option>
+
+  </select>
+
+  <input id="storyPassword"
+   type="password"
+   placeholder="Yangi parol (o‘zgartirmasangiz bo‘sh qoldiring)">
+
+  <div id="progressBox" class="hidden">
+
+   <progress id="progressBar"
+    value="0"
+    max="100"></progress>
+
+   <div id="progressText">0%</div>
+
+  </div>
+
+  <button class="green"
+   style="width:100%;margin-top:10px"
+   onclick="saveStory()">
+   Saqlash
+  </button>
+
  </div>`;
 }
 
+
 async function deleteStory(id){
- if(!confirm("Bu hikoya o‘chirilsinmi?"))return;
 
- const {data,error}=await sb.from("stories").select("*").eq("id",id).single();
- if(error)return toast(error.message);
+ if(!confirm("Bu hikoya o‘chirilsinmi?"))
+  return;
 
- const paths=[data.image_path,data.video_path,data.audio_path,data.voice_path].filter(Boolean);
+ const {data,error}=await sb
+  .from("stories")
+  .select("*")
+  .eq("id",id)
+  .single();
 
- const {error:delError}=await sb.from("stories").delete().eq("id",id);
- if(delError)return toast(delError.message);
+ if(error)
+  return toast(error.message);
+
+ const paths=[
+  data.image_path,
+  data.video_path,
+  data.audio_path,
+  data.voice_path
+ ].filter(Boolean);
+
+ const {error:delError}=await sb
+  .from("stories")
+  .delete()
+  .eq("id",id);
+
+ if(delError)
+  return toast(delError.message);
 
  if(paths.length){
-  const {error:e}=await sb.storage.from(BUCKET).remove(paths);
+
+  const {error:e}=await sb.storage
+   .from(BUCKET)
+   .remove(paths);
+
   if(e)console.warn(e);
  }
 
  toast("Hikoya o‘chirildi");
- loadStories();
+
+ await loadStories();
 }
 
+
 function showQuotes(){
+
  app.innerHTML=`
  <header>
-  <button class="alt" onclick="renderHome()">← Orqaga</button>
+
+  <button class="alt"
+   onclick="renderHome()">
+   ← Orqaga
+  </button>
+
   <h1>Iqtiboslar</h1>
+
  </header>
+
  <div id="quotes"></div>`;
 
- document.getElementById("quotes").innerHTML=quotes.map((q,i)=>{
+ document.getElementById("quotes").innerHTML=
+ quotes.map((q,i)=>{
+
   const l=quoteLink(i);
-  return `<div class="quote">
-   <p>${esc(q)}</p>
-   <div class="row">
-    <button onclick="copyText('${esc(l)}')">Linkni nusxalash</button>
-    <button class="alt" onclick="telegram('${esc(l)}')">Telegram</button>
+
+  return `
+  <div class="quote">
+
+   <div class="more">
+
+    <button
+     onclick="toggleMenu('quoteMenu_${i}')">
+     ⋮
+    </button>
+
+    <div id="quoteMenu_${i}"
+     class="more-menu">
+
+     <button
+      onclick="copyText('${esc(l)}')">
+      🔗 Linkni nusxalash
+     </button>
+
+     <button
+      onclick="telegram('${esc(l)}')">
+      ✈️ Telegram
+     </button>
+
+    </div>
+
    </div>
-   <div class="linkbox">${esc(l)}</div>
+
+   <p>${esc(q)}</p>
+
   </div>`;
+
  }).join("");
 }
 
+
 function showQuoteOnly(i){
+
  const q=quotes[i];
- if(q===undefined)return renderHome();
+
+ if(q===undefined){
+  return renderHome();
+ }
+
  const l=quoteLink(i);
 
  document.body.innerHTML=`
  <div id="app">
-  <div class="box" style="margin:30px auto;max-width:700px">
+
+  <div class="box"
+   style="margin:30px auto;max-width:700px">
+
    <h1>Munisam hikoyalari</h1>
-   <div class="quote"><p>${esc(q)}</p></div>
-   <div class="row">
-    <button onclick="copyText('${esc(l)}')">Linkni nusxalash</button>
-    <button class="alt" onclick="telegram('${esc(l)}')">Telegram</button>
+
+   <div class="quote">
+    <p>${esc(q)}</p>
    </div>
-   <div class="linkbox" style="margin-top:10px">${esc(l)}</div>
+
+   <div class="more"
+    style="position:relative;margin-top:10px">
+
+    <button
+     onclick="toggleMenu('singleQuoteMenu')">
+     ⋮
+    </button>
+
+    <div id="singleQuoteMenu"
+     class="more-menu">
+
+     <button
+      onclick="copyText('${esc(l)}')">
+      🔗 Linkni nusxalash
+     </button>
+
+     <button
+      onclick="telegram('${esc(l)}')">
+      ✈️ Telegram
+     </button>
+
+    </div>
+
+   </div>
+
   </div>
+
  </div>`;
 }
 
+
 async function publicStory(token){
- const {data,error}=await sb.rpc("get_public_story",{p_token:token});
+
+ const {data,error}=await sb.rpc(
+  "get_public_story",
+  {p_token:token}
+ );
+
  if(error||!data?.length){
-  document.body.innerHTML="<div class='box' style='margin:30px'>Hikoya topilmadi.</div>";
+
+  document.body.innerHTML=
+   "<div class='box' style='margin:30px'>"+
+   "Hikoya topilmadi."+
+   "</div>";
+
   return;
  }
+
  const s=data[0];
 
  if(s.is_password_protected){
+
   document.body.innerHTML=`
    <div class="auth">
+
     <h2>${esc(s.title)}</h2>
-    <p>Bu hikoya parol bilan himoyalangan.</p>
-    <input id="publicPassword" type="password" placeholder="Parol">
-    <button style="width:100%" onclick="verifyPublic('${esc(token)}')">Ochish</button>
+
+    <p>
+     Bu hikoya parol bilan himoyalangan.
+    </p>
+
+    <input
+     id="publicPassword"
+     type="password"
+     placeholder="Parol">
+
+    <button
+     style="width:100%"
+     onclick="verifyPublic('${esc(token)}')">
+     Ochish
+    </button>
+
    </div>`;
+
   return;
  }
+
  showPublicStory(s);
 }
 
-async function verifyPublic(token){
- const p=document.getElementById("publicPassword").value;
- if(!p)return toast("Parolni kiriting");
 
- const {data,error}=await sb.rpc("verify_story_password",{
-  p_token:token,p_password:p
- });
- if(error||!data?.length)return toast("Parol noto‘g‘ri");
+async function verifyPublic(token){
+
+ const p=
+  document.getElementById("publicPassword")
+  .value;
+
+ if(!p)
+  return toast("Parolni kiriting");
+
+ const {data,error}=await sb.rpc(
+  "verify_story_password",
+  {
+   p_token:token,
+   p_password:p
+  }
+ );
+
+ if(error||!data?.length)
+  return toast("Parol noto‘g‘ri");
 
  showPublicStory(data[0]);
 }
 
+
 function showPublicStory(s){
+
  document.body.innerHTML=`
  <div id="app">
- <div class="box" style="max-width:850px;margin:25px auto">
-  <h1>${esc(s.title)}</h1>
-  <div class="date">${dateText(s.created_at)}</div>
-  <hr>
-  <div style="white-space:pre-wrap">${esc(s.content||"")}</div>
-  ${s.image_path?`<div class="media"><img src="${esc(publicMedia(s.image_path))}"></div>`:""}
-  ${s.video_path?`<div class="media"><video controls src="${esc(publicMedia(s.video_path))}"></video></div>`:""}
-  ${s.audio_path?`<div class="media"><audio controls src="${esc(publicMedia(s.audio_path))}"></audio></div>`:""}
-  ${s.voice_path?`<div class="media"><audio controls src="${esc(publicMedia(s.voice_path))}"></audio></div>`:""}
- </div>
+
+  <div class="box"
+   style="max-width:850px;margin:25px auto">
+
+   <h1>${esc(s.title)}</h1>
+
+   <div class="date">
+    ${dateText(s.created_at)}
+   </div>
+
+   <hr>
+
+   <div style="white-space:pre-wrap">
+    ${esc(s.content||"")}
+   </div>
+
+   ${
+    s.image_path
+    ?`<div class="media">
+       <img src="${esc(publicMedia(s.image_path))}">
+      </div>`
+    :""
+   }
+
+   ${
+    s.video_path
+    ?`<div class="media">
+       <video controls
+        src="${esc(publicMedia(s.video_path))}">
+       </video>
+      </div>`
+    :""
+   }
+
+   ${
+    s.audio_path
+    ?`<div class="media">
+       <audio controls
+        src="${esc(publicMedia(s.audio_path))}">
+       </audio>
+      </div>`
+    :""
+   }
+
+   ${
+    s.voice_path
+    ?`<div class="media">
+       <audio controls
+        src="${esc(publicMedia(s.voice_path))}">
+       </audio>
+      </div>`
+    :""
+   }
+
+  </div>
+
  </div>`;
-}async function publicMediaPage(token,type){
- const {data,error}=await sb.rpc("get_public_story",{p_token:token});
+}
+
+
+async function publicMediaPage(token,type){
+
+ const {data,error}=await sb.rpc(
+  "get_public_story",
+  {p_token:token}
+ );
 
  if(error||!data?.length){
-  document.body.innerHTML="<div class='box' style='margin:30px'>Media topilmadi.</div>";
+
+  document.body.innerHTML=
+   "<div class='box' style='margin:30px'>"+
+   "Media topilmadi."+
+   "</div>";
+
   return;
  }
 
  const s=data[0];
+
  let path=null;
 
- if(type==="image")path=s.image_path;
- if(type==="video")path=s.video_path;
- if(type==="audio")path=s.audio_path;
- if(type==="voice")path=s.voice_path;
+ if(type==="image")
+  path=s.image_path;
+
+ if(type==="video")
+  path=s.video_path;
+
+ if(type==="audio")
+  path=s.audio_path;
+
+ if(type==="voice")
+  path=s.voice_path;
 
  if(!path){
-  document.body.innerHTML="<div class='box' style='margin:30px'>Bu media mavjud emas.</div>";
+
+  document.body.innerHTML=
+   "<div class='box' style='margin:30px'>"+
+   "Bu media mavjud emas."+
+   "</div>";
+
   return;
  }
 
  const url=publicMedia(path);
+
  let media="";
 
  if(type==="image")
-  media=`<img class="media" src="${esc(url)}">`;
+  media=
+   `<img class="media"
+    src="${esc(url)}">`;
 
  if(type==="video")
-  media=`<video class="media" controls autoplay src="${esc(url)}"></video>`;
+  media=
+   `<video class="media"
+    controls
+    autoplay
+    src="${esc(url)}">
+    </video>`;
 
  if(type==="audio"||type==="voice")
-  media=`<audio class="media" controls autoplay src="${esc(url)}"></audio>`;
+  media=
+   `<audio class="media"
+    controls
+    autoplay
+    src="${esc(url)}">
+    </audio>`;
 
  const link=mediaLink(token,type);
 
  document.body.innerHTML=`
  <div id="app">
-  <div class="box" style="max-width:850px;margin:25px auto">
+
+  <div class="box"
+   style="max-width:850px;margin:25px auto">
+
    <h1>${esc(s.title)}</h1>
-   <div class="date">${dateText(s.created_at)}</div>
+
+   <div class="date">
+    ${dateText(s.created_at)}
+   </div>
+
    <hr>
+
    ${media}
-   <div class="linkbox" style="margin-top:15px">${esc(link)}</div>
-   <button style="margin-top:8px" onclick="copyText('${esc(link)}')">Linkni nusxalash</button>
+
   </div>
+
  </div>`;
 }
 
+
 function handleUrl(){
- const p=new URLSearchParams(location.search);
+
+ const p=new URLSearchParams(
+  location.search
+ );
 
  const quote=p.get("quote");
  const story=p.get("story");
@@ -657,49 +1353,116 @@ function handleUrl(){
  const type=p.get("type");
 
  if(quote!==null){
+
   showQuoteOnly(Number(quote));
   return true;
  }
 
  if(story){
+
   publicStory(story);
   return true;
  }
 
  if(media&&type){
+
   publicMediaPage(media,type);
   return true;
  }
 
  return false;
+ }async function changePassword(){
+
+ const oldPassword=
+  document.getElementById("oldPassword")?.value||"";
+
+ const newPassword=
+  document.getElementById("newPassword")?.value||"";
+
+ if(!oldPassword||!newPassword)
+  return toast("Eski va yangi parolni kiriting");
+
+ if(newPassword.length<6)
+  return toast("Yangi parol kamida 6 belgidan iborat bo‘lsin");
+
+ const {error:loginError}=
+  await sb.auth.signInWithPassword({
+   email:currentUser.email,
+   password:oldPassword
+  });
+
+ if(loginError)
+  return toast("Eski parol noto‘g‘ri");
+
+ const {error}=await sb.auth.updateUser({
+  password:newPassword
+ });
+
+ if(error)
+  return toast(error.message);
+
+ toast("Parol muvaffaqiyatli o‘zgartirildi");
+
+ setTimeout(renderHome,800);
 }
 
-sb.auth.onAuthStateChange(async(event,session)=>{
- if(event==="PASSWORD_RECOVERY"){
+
+function showPasswordChange(){
+
+ app.innerHTML=`
+ <div class="box">
+
+  <button class="alt"
+   onclick="renderHome()">
+   ← Orqaga
+  </button>
+
+  <h2>Parolni o‘zgartirish</h2>
+
+  <input
+   id="oldPassword"
+   type="password"
+   placeholder="Eski parol">
+
+  <input
+   id="newPassword"
+   type="password"
+   placeholder="Yangi parol">
+
+  <button
+   class="green"
+   style="width:100%"
+   onclick="changePassword()">
+   Parolni o‘zgartirish
+  </button>
+
+ </div>`;
+}
+
+
+sb.auth.onAuthStateChange(
+ async(event,session)=>{
+
   currentUser=session?.user||null;
-  app.innerHTML=`
-  <div class="auth">
-   <h2>Yangi parol</h2>
-   <input id="newPass" type="password" placeholder="Yangi parol">
-   <button style="width:100%" onclick="changePassword()">Saqlash</button>
-  </div>`;
- }
-});
 
-async function changePassword(){
- const p=document.getElementById("newPass").value;
- if(p.length<6)return toast("Parol kamida 6 belgidan iborat bo‘lsin");
+  if(event==="SIGNED_OUT"){
+   renderAuth();
+   return;
+  }
 
- const {error}=await sb.auth.updateUser({password:p});
- if(error)return toast(error.message);
+  if(event==="PASSWORD_RECOVERY"){
+   showPasswordChange();
+   return;
+  }
+ });
 
- toast("Parol o‘zgartirildi");
- setTimeout(init,700);
-}
 
-(async()=>{
+(async function(){
+
  if(handleUrl())return;
+
  await init();
+
 })();
 </script>
 </body>
