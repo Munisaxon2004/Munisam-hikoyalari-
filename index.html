@@ -83,7 +83,6 @@ textarea{
 .hidden{display:none!important}
 
 .story{position:relative}
-
 .story h3{margin-bottom:8px}
 
 .date{
@@ -137,7 +136,6 @@ textarea{
 }
 
 .center{text-align:center}
-
 .back{margin-bottom:15px}
 
 .more{
@@ -179,7 +177,6 @@ textarea{
 }
 
 .more-menu button:hover{background:#eee}
-
 .more-menu .red-item{color:#b3261e}
 
 hr{
@@ -208,7 +205,7 @@ const ADMIN_ID =
 
 const BUCKET="story-media";
 
-const sb =
+const sb=
 window.supabase.createClient(
  SUPABASE_URL,
  SUPABASE_KEY
@@ -238,9 +235,8 @@ try{
  const savedQuotes=
   JSON.parse(localStorage.getItem("munisam_quotes"));
 
- if(Array.isArray(savedQuotes)){
+ if(Array.isArray(savedQuotes))
   quotes=savedQuotes;
- }
 }catch(e){}
 
 function saveQuotes(){
@@ -251,9 +247,7 @@ function saveQuotes(){
 }
 
 function toast(text){
-
  const el=document.getElementById("toast");
-
  if(!el)return;
 
  el.textContent=text;
@@ -267,7 +261,6 @@ function toast(text){
 }
 
 function esc(value=""){
-
  return String(value).replace(
   /[&<>"']/g,
   ch=>({
@@ -278,13 +271,6 @@ function esc(value=""){
    "'":"&#039;"
   }[ch])
  );
-}
-
-function jsArg(value){
- return JSON.stringify(value)
-  .replace(/</g,"\\u003c")
-  .replace(/>/g,"\\u003e")
-  .replace(/&/g,"\\u0026");
 }
 
 function uid(){
@@ -329,8 +315,7 @@ function publicMedia(path){
 
  if(!path)return "";
 
- return sb
-  .storage
+ return sb.storage
   .from(BUCKET)
   .getPublicUrl(path)
   .data.publicUrl;
@@ -338,16 +323,16 @@ function publicMedia(path){
 
 function storyLink(token){
  return location.origin+
-  location.pathname+
-  "?story="+
-  encodeURIComponent(token);
+ location.pathname+
+ "?story="+
+ encodeURIComponent(token);
 }
 
 function quoteLink(index){
  return location.origin+
-  location.pathname+
-  "?quote="+
-  encodeURIComponent(index);
+ location.pathname+
+ "?quote="+
+ encodeURIComponent(index);
 }
 
 async function copyText(text){
@@ -362,9 +347,7 @@ async function copyText(text){
   area.value=text;
   document.body.appendChild(area);
   area.select();
-
   document.execCommand("copy");
-
   area.remove();
 
   toast("Link nusxalandi");
@@ -374,14 +357,13 @@ async function copyText(text){
 function telegram(text){
 
  location.href=
-  "https://t.me/share/url?url="+
-  encodeURIComponent(text);
+ "https://t.me/share/url?url="+
+ encodeURIComponent(text);
 }
 
 function toggleMenu(id){
 
  const menu=document.getElementById(id);
-
  if(!menu)return;
 
  document
@@ -417,7 +399,6 @@ async function getCurrentUser(){
 }
 
 function isAdmin(){
-
  return !!(
   currentUser &&
   currentUser.id===ADMIN_ID
@@ -449,13 +430,11 @@ function renderAuth(){
   <input
    id="email"
    type="email"
-   autocomplete="email"
    placeholder="Email">
 
   <input
    id="password"
    type="password"
-   autocomplete="current-password"
    placeholder="Parol">
 
   <div class="row">
@@ -486,45 +465,23 @@ async function login(){
 
  const email=
   document.getElementById("email")
-   .value
-   .trim()
-   .toLowerCase();
+   .value.trim();
 
  const password=
   document.getElementById("password")
    .value;
 
- if(!email)
-  return toast("Emailni kiriting");
+ if(!email||!password)
+  return toast("Email va parolni kiriting");
 
- if(!password)
-  return toast("Parolni kiriting");
-
- const {data,error}=
+ const {error}=
   await sb.auth.signInWithPassword({
-   email:email,
-   password:password
+   email,
+   password
   });
 
- if(error){
-
-  console.error("LOGIN ERROR:",error);
-
-  if(
-   error.message &&
-   error.message
-    .toLowerCase()
-    .includes("invalid login credentials")
-  ){
-   return toast(
-    "Email yoki parol noto‘g‘ri"
-   );
-  }
-
+ if(error)
   return toast(error.message);
- }
-
- currentUser=data.user||null;
 
  await init();
 }
@@ -533,9 +490,7 @@ async function register(){
 
  const email=
   document.getElementById("email")
-   .value
-   .trim()
-   .toLowerCase();
+   .value.trim();
 
  const password=
   document.getElementById("password")
@@ -565,35 +520,25 @@ async function forgot(){
 
  const email=
   document.getElementById("email")
-   .value
-   .trim()
-   .toLowerCase();
+   .value.trim();
 
  if(!email)
   return toast("Emailni kiriting");
-
- const redirectUrl=
-  location.origin+
-  location.pathname;
 
  const {error}=
   await sb.auth.resetPasswordForEmail(
    email,
    {
-    redirectTo:redirectUrl
+    redirectTo:
+     location.origin+
+     location.pathname
    }
   );
 
- if(error){
-
-  console.error("RESET ERROR:",error);
-
+ if(error)
   return toast(error.message);
- }
 
- toast(
-  "Parolni tiklash havolasi emailingizga yuborildi"
- );
+ toast("Parolni tiklash havolasi yuborildi");
 }
 
 async function logout(){
@@ -610,9 +555,7 @@ async function init(){
  await getCurrentUser();
 
  if(!currentUser){
-
   renderAuth();
-
   return;
  }
 
@@ -679,7 +622,6 @@ async function renderHome(){
 function showAdd(){
 
  editingId=null;
-
  resetFiles();
 
  app.innerHTML=`
@@ -692,7 +634,9 @@ function showAdd(){
    ← Orqaga
   </button>
 
-  <h2>Yangi hikoya</h2>
+  <h2>
+   Yangi hikoya
+  </h2>
 
   <input
    id="title"
@@ -745,7 +689,10 @@ function showAdd(){
 
   </div>
 
-  <p id="voiceStatus" class="small"></p>
+  <p
+   id="voiceStatus"
+   class="small">
+  </p>
 
   <label><b>Hikoya turi</b></label>
 
@@ -771,7 +718,9 @@ function showAdd(){
     max="100">
    </progress>
 
-   <div id="progressText">0%</div>
+   <div id="progressText">
+    0%
+   </div>
 
   </div>
 
@@ -783,8 +732,7 @@ function showAdd(){
   </button>
 
  </div>`;
-}<script>
-async function startVoice(){
+}async function startVoice(){
 
  try{
 
@@ -795,26 +743,24 @@ async function startVoice(){
 
   voiceChunks=[];
 
-  recorder=
-   new MediaRecorder(stream);
+  recorder=new MediaRecorder(stream);
 
   recorder.ondataavailable=e=>{
-   if(e.data.size>0)
+   if(e.data.size)
     voiceChunks.push(e.data);
   };
 
   recorder.onstop=()=>{
 
-   selectedVoice=
-    new File(
-     voiceChunks,
-     "voice-"+Date.now()+".webm",
-     {type:"audio/webm"}
-    );
+   selectedVoice=new File(
+    voiceChunks,
+    "voice-"+Date.now()+".webm",
+    {type:"audio/webm"}
+   );
 
-   stream
-    .getTracks()
-    .forEach(track=>track.stop());
+   stream.getTracks().forEach(
+    track=>track.stop()
+   );
 
    const el=
     document.getElementById("voiceStatus");
@@ -831,9 +777,7 @@ async function startVoice(){
   if(el)
    el.textContent="Ovoz yozilmoqda...";
 
- }catch(error){
-
-  console.error(error);
+ }catch(e){
 
   toast("Mikrofonga ruxsat berilmadi");
  }
@@ -853,52 +797,13 @@ async function uploadFile(file,folder){
 
  if(!file)return null;
 
- const maxImage=10*1024*1024;
- const maxVideo=100*1024*1024;
- const maxOther=25*1024*1024;
-
- if(
-  folder==="images" &&
-  file.size>maxImage
- ){
-  throw new Error(
-   "Rasm 10 MB dan katta bo‘lmasin"
-  );
- }
-
- if(
-  folder==="videos" &&
-  file.size>maxVideo
- ){
-  throw new Error(
-   "Video 100 MB dan katta bo‘lmasin"
-  );
- }
-
- if(
-  folder!=="images" &&
-  folder!=="videos" &&
-  file.size>maxOther
- ){
-  throw new Error(
-   "Audio 25 MB dan katta bo‘lmasin"
-  );
- }
-
  const ext=
   file.name.includes(".")
-   ? file.name
-      .split(".")
-      .pop()
-      .toLowerCase()
+   ? file.name.split(".").pop()
    : "bin";
 
  const path=
-  folder+
-  "/"+
-  uid()+
-  "."+
-  ext;
+  folder+"/"+uid()+"."+ext;
 
  const {error}=
   await sb.storage
@@ -908,9 +813,7 @@ async function uploadFile(file,folder){
     file,
     {
      upsert:false,
-     contentType:
-      file.type||
-      "application/octet-stream"
+     contentType:file.type
     }
    );
 
@@ -920,14 +823,13 @@ async function uploadFile(file,folder){
  return path;
 }
 
-async function makePasswordHash(password){
+async function hashPassword(password){
 
- if(!password)
-  return null;
+ if(!password)return null;
 
  const {data,error}=
   await sb.rpc(
-   "make_story_password_hash",
+   "hash_story_password",
    {
     p_password:password
    }
@@ -1035,23 +937,19 @@ async function saveStory(){
    progressText.textContent="70%";
   }
 
-  let storyPasswordHash=null;
+  let passwordHash=null;
 
-  if(password){
-
-   storyPasswordHash=
-    await makePasswordHash(password);
-  }
+  if(password)
+   passwordHash=
+    await hashPassword(password);
 
   const payload={
-
-   title:title,
+   title,
    slug:makeSlug(title),
-   content:content,
-   owner_id:currentUser.id,
+   content,
+   user_id:currentUser.id,
    is_public:isPublic,
-   is_password_protected:!!password,
-   story_password_hash:storyPasswordHash,
+   password_hash:passwordHash,
    image_path:imagePath,
    video_path:videoPath,
    audio_path:audioPath,
@@ -1094,12 +992,12 @@ async function saveStory(){
    500
   );
 
- }catch(error){
+ }catch(e){
 
-  console.error(error);
+  console.error(e);
 
   toast(
-   error.message||
+   e.message||
    "Saqlashda xatolik"
   );
  }
@@ -1113,7 +1011,7 @@ async function loadStories(){
  if(!box)return;
 
  box.innerHTML=
-  `<div class="box">Yuklanmoqda...</div>`;
+  "<div class='box'>Yuklanmoqda...</div>";
 
  let query=
   sb
@@ -1128,7 +1026,7 @@ async function loadStories(){
 
   query=
    query.eq(
-    "owner_id",
+    "user_id",
     currentUser.id
    );
  }
@@ -1137,8 +1035,6 @@ async function loadStories(){
   await query;
 
  if(error){
-
-  console.error(error);
 
   box.innerHTML=
    `<div class="box">
@@ -1150,21 +1046,17 @@ async function loadStories(){
 
  const search=
   (
-   document
-    .getElementById("search")
-    ?.value||
+   document.getElementById("search")?.value||
    ""
-  )
-  .toLowerCase()
-  .trim();
+  ).toLowerCase().trim();
 
  const stories=
-  (data||[]).filter(story=>
+  (data||[]).filter(s=>
    !search||
-   String(story.title||"")
+   String(s.title||"")
     .toLowerCase()
     .includes(search)||
-   String(story.content||"")
+   String(s.content||"")
     .toLowerCase()
     .includes(search)
   );
@@ -1180,18 +1072,16 @@ async function loadStories(){
  }
 
  box.innerHTML=
-  stories
-   .map(storyCard)
-   .join("");
+  stories.map(storyCard).join("");
 }
 
 function storyCard(s){
 
  const menuId=
-  "story-menu-"+
-  String(s.id).replace(/-/g,"");
+  "story-menu-"+String(s.id)
+   .replace(/-/g,"");
 
- const share=
+ const sl=
   s.share_token
    ? storyLink(s.share_token)
    : "";
@@ -1200,7 +1090,8 @@ function storyCard(s){
 
  if(s.image_path){
 
-  const url=publicMedia(s.image_path);
+  const url=
+   publicMedia(s.image_path);
 
   media+=`
    <div class="media">
@@ -1212,7 +1103,8 @@ function storyCard(s){
 
  if(s.video_path){
 
-  const url=publicMedia(s.video_path);
+  const url=
+   publicMedia(s.video_path);
 
   media+=`
    <div class="media">
@@ -1225,7 +1117,8 @@ function storyCard(s){
 
  if(s.audio_path){
 
-  const url=publicMedia(s.audio_path);
+  const url=
+   publicMedia(s.audio_path);
 
   media+=`
    <div class="media">
@@ -1238,7 +1131,8 @@ function storyCard(s){
 
  if(s.voice_path){
 
-  const url=publicMedia(s.voice_path);
+  const url=
+   publicMedia(s.voice_path);
 
   media+=`
    <div class="media">
@@ -1257,7 +1151,8 @@ function storyCard(s){
   <div class="more">
 
    <button
-    onclick="event.stopPropagation();toggleMenu('${menuId}')">
+    onclick="event.stopPropagation();
+    toggleMenu('${menuId}')">
     ⋮
    </button>
 
@@ -1266,9 +1161,9 @@ function storyCard(s){
     class="more-menu">
 
     ${
-     share
+     sl
       ? `<button
-          onclick='copyText(${jsArg(share)})'>
+          onclick='copyText(${JSON.stringify(sl)})'>
           🔗 Linkni nusxalash
          </button>`
       : ""
@@ -1302,19 +1197,11 @@ function storyCard(s){
   ${media}
 
   <div class="small">
-
    ${
     s.is_public
      ? "🌐 Ochiq"
      : "🔒 Yopiq"
    }
-
-   ${
-    s.is_password_protected
-     ? " · 🔑 Parolli"
-     : ""
-   }
-
   </div>
 
   <button
@@ -1332,44 +1219,48 @@ function mediaButtons(s){
 
  if(s.image_path){
 
-  const link=publicMedia(s.image_path);
+  const link=
+   publicMedia(s.image_path);
 
   html+=`
    <button
-    onclick='copyText(${jsArg(link)})'>
+    onclick='copyText(${JSON.stringify(link)})'>
     Rasm linki
    </button>`;
  }
 
  if(s.video_path){
 
-  const link=publicMedia(s.video_path);
+  const link=
+   publicMedia(s.video_path);
 
   html+=`
    <button
-    onclick='copyText(${jsArg(link)})'>
+    onclick='copyText(${JSON.stringify(link)})'>
     Video linki
    </button>`;
  }
 
  if(s.audio_path){
 
-  const link=publicMedia(s.audio_path);
+  const link=
+   publicMedia(s.audio_path);
 
   html+=`
    <button
-    onclick='copyText(${jsArg(link)})'>
+    onclick='copyText(${JSON.stringify(link)})'>
     Audio linki
    </button>`;
  }
 
  if(s.voice_path){
 
-  const link=publicMedia(s.voice_path);
+  const link=
+   publicMedia(s.voice_path);
 
   html+=`
    <button
-    onclick='copyText(${jsArg(link)})'>
+    onclick='copyText(${JSON.stringify(link)})'>
     Ovoz linki
    </button>`;
  }
@@ -1447,12 +1338,12 @@ async function editStory(id){
 
   <input
    id="title"
-   value="${esc(s.title||"")}"
+   value="${esc(s.title)}"
    placeholder="Hikoya nomi">
 
   <textarea
    id="content"
-   placeholder="Hikoya matni">${esc(s.content||"")}</textarea>
+   placeholder="Hikoya matni">${esc(s.content)}</textarea>
 
   <label><b>Yangi rasm</b></label>
 
@@ -1525,8 +1416,9 @@ async function editStory(id){
    placeholder="Yangi parol (ixtiyoriy)">
 
   <p class="small">
-   Yangi parol yozsangiz,
-   eski parol almashtiriladi.
+   Eski fayllar o‘chmaydi.
+   Yangi fayl tanlasangiz,
+   yangi fayl biriktiriladi.
   </p>
 
   <div id="progressBox" class="hidden">
@@ -1568,8 +1460,7 @@ async function deleteStory(id){
  toast("Hikoya o‘chirildi");
 
  await loadStories();
- }<script>
-function showQuotes(){
+ }function showQuotes(){
 
  app.innerHTML=`
 
@@ -1590,69 +1481,65 @@ function showQuotes(){
  const box=
   document.getElementById("quotesList");
 
- if(!quotes.length){
-
-  box.innerHTML=
-   `<div class="small">
-     Hozircha iqtiboslar yo‘q.
-    </div>`;
-
-  return;
- }
-
  box.innerHTML=
-  quotes.map((q,i)=>{
+  quotes.length
+   ? quotes.map((q,i)=>{
 
-   const link=quoteLink(i);
-   const menuId="quote-menu-"+i;
+      const l=quoteLink(i);
+      const menuId="quote-menu-"+i;
 
-   return `
+      return `
 
-   <div class="quote">
+      <div class="quote">
 
-    <div class="more">
+       <div class="more">
 
-     <button
-      onclick="event.stopPropagation();toggleMenu('${menuId}')">
-      ⋮
-     </button>
+        <button
+         onclick="event.stopPropagation();
+         toggleMenu('${menuId}')">
+         ⋮
+        </button>
 
-     <div
-      id="${menuId}"
-      class="more-menu">
+        <div
+         id="${menuId}"
+         class="more-menu">
 
-      <button
-       onclick='copyText(${jsArg(link)})'>
-       🔗 Linkni nusxalash
-      </button>
+         <button
+          onclick='copyText(${JSON.stringify(l)})'>
+          🔗 Linkni nusxalash
+         </button>
 
-      <button
-       onclick='telegram(${jsArg(link)})'>
-       Telegramga yuborish
-      </button>
+         <button
+          onclick='telegram(${JSON.stringify(l)})'>
+          Telegramga yuborish
+         </button>
 
-      <button
-       class="red-item"
-       onclick="deleteQuote(${i})">
-       🗑 O‘chirish
-      </button>
+         <button
+          class="red-item"
+          onclick="deleteQuote(${i})">
+          🗑 O‘chirish
+         </button>
 
-     </div>
+        </div>
 
-    </div>
+       </div>
 
-    <p>${esc(q)}</p>
+       <p>${esc(q)}</p>
 
-   </div>`;
-  }).join("");
+      </div>`;
+
+     }).join("")
+   : `<div class="small">
+       Hozircha iqtiboslar yo‘q.
+      </div>`;
 }
 
-function deleteQuote(index){
+function deleteQuote(i){
 
  if(!confirm("Bu iqtibos o‘chirilsinmi?"))
   return;
 
- quotes.splice(index,1);
+ quotes.splice(i,1);
 
  saveQuotes();
  showQuotes();
@@ -1660,9 +1547,9 @@ function deleteQuote(index){
  toast("Iqtibos o‘chirildi");
 }
 
-function showQuoteOnly(index){
+function showQuoteOnly(i){
 
- const q=quotes[index];
+ const q=quotes[i];
 
  if(!q){
 
@@ -1677,7 +1564,7 @@ function showQuoteOnly(index){
   return;
  }
 
- const link=quoteLink(index);
+ const link=quoteLink(i);
 
  app.innerHTML=`
 
@@ -1686,19 +1573,21 @@ function showQuoteOnly(index){
   <h2>Munisam hikoyalari</h2>
 
   <div class="quote">
+
    <p>${esc(q)}</p>
+
   </div>
 
   <div class="row">
 
    <button
-    onclick='copyText(${jsArg(link)})'>
+    onclick='copyText(${JSON.stringify(link)})'>
     🔗 Linkni nusxalash
    </button>
 
    <button
     class="alt"
-    onclick='telegram(${jsArg(link)})'>
+    onclick='telegram(${JSON.stringify(link)})'>
     Telegram
    </button>
 
@@ -1732,23 +1621,25 @@ async function publicStory(token){
   return;
  }
 
- const story=
+ const s=
   Array.isArray(data)
    ? data[0]
    : data;
 
- if(!story){
+ if(!s){
 
   app.innerHTML=`
 
    <div class="box center">
+
     <h2>Hikoya topilmadi</h2>
+
    </div>`;
 
   return;
  }
 
- if(story.is_password_protected){
+ if(s.password_hash){
 
   app.innerHTML=`
 
@@ -1767,7 +1658,7 @@ async function publicStory(token){
 
     <button
      style="width:100%"
-     onclick='verifyPublic(${jsArg(token)})'>
+     onclick="verifyPublic('${esc(token)}')">
      Ochish
     </button>
 
@@ -1776,7 +1667,7 @@ async function publicStory(token){
   return;
  }
 
- showPublicStory(story);
+ showPublicStory(s);
 }
 
 async function verifyPublic(token){
@@ -1801,11 +1692,7 @@ async function verifyPublic(token){
  if(error)
   return toast(error.message);
 
- const verified=
-  data===true||
-  data==="true";
-
- if(!verified)
+ if(!data)
   return toast("Parol noto‘g‘ri");
 
  const result=
@@ -1819,15 +1706,12 @@ async function verifyPublic(token){
  if(result.error)
   return toast(result.error.message);
 
- const story=
+ const s=
   Array.isArray(result.data)
    ? result.data[0]
    : result.data;
 
- if(!story)
-  return toast("Hikoya topilmadi");
-
- showPublicStory(story);
+ showPublicStory(s);
 }
 
 function showPublicStory(s){
@@ -1836,50 +1720,64 @@ function showPublicStory(s){
 
  if(s.image_path){
 
-  const url=publicMedia(s.image_path);
+  const url=
+   publicMedia(s.image_path);
 
   media+=`
+
    <div class="media">
+
     <img
      src="${esc(url)}"
      alt="${esc(s.title)}">
+
    </div>`;
  }
 
  if(s.video_path){
 
-  const url=publicMedia(s.video_path);
+  const url=
+   publicMedia(s.video_path);
 
   media+=`
+
    <div class="media">
+
     <video
      controls
      src="${esc(url)}">
     </video>
+
    </div>`;
  }
 
  if(s.audio_path){
 
-  const url=publicMedia(s.audio_path);
+  const url=
+   publicMedia(s.audio_path);
 
   media+=`
+
    <div class="media">
+
     <audio
      controls
      src="${esc(url)}">
     </audio>
+
    </div>`;
  }
 
  if(s.voice_path){
 
-  const url=publicMedia(s.voice_path);
+  const url=
+   publicMedia(s.voice_path);
 
   media+=`
+
    <div class="media">
 
-    <p><b>🎙 Ovoz</b></p>
+    <p>🎙 Ovoz</p>
 
     <audio
      controls
@@ -1923,38 +1821,39 @@ async function publicMediaPage(token,type){
  if(error)
   return toast(error.message);
 
- const story=
+ const s=
   Array.isArray(data)
    ? data[0]
    : data;
 
- if(!story)
+ if(!s)
   return toast("Topilmadi");
 
  let path=null;
 
  if(type==="image")
-  path=story.image_path;
+  path=s.image_path;
 
  if(type==="video")
-  path=story.video_path;
+  path=s.video_path;
 
  if(type==="audio")
-  path=story.audio_path;
+  path=s.audio_path;
 
  if(type==="voice")
-  path=story.voice_path;
+  path=s.voice_path;
 
  if(!path)
   return toast("Media topilmadi");
 
- const url=publicMedia(path);
+ const url=
+  publicMedia(path);
 
  app.innerHTML=`
 
  <div class="box center">
 
-  <h2>${esc(story.title)}</h2>
+  <h2>${esc(s.title)}</h2>
 
   <a
    href="${esc(url)}"
@@ -1978,7 +1877,9 @@ async function handleUrl(){
 
  if(quote!==null){
 
-  showQuoteOnly(Number(quote));
+  showQuoteOnly(
+   Number(quote)
+  );
 
   return true;
  }
@@ -2001,8 +1902,7 @@ async function handleUrl(){
  }
 
  return false;
-              }<script>
-async function changePassword(){
+}async function changePassword(){
 
  const password=
   document
@@ -2014,20 +1914,13 @@ async function changePassword(){
    "Parol kamida 6 belgidan iborat bo‘lsin"
   );
 
- const {data,error}=
+ const {error}=
   await sb.auth.updateUser({
    password:password
   });
 
- if(error){
-
-  console.error(
-   "PASSWORD UPDATE ERROR:",
-   error
-  );
-
+ if(error)
   return toast(error.message);
- }
 
  toast("Parol o‘zgartirildi");
 
@@ -2043,16 +1936,17 @@ function showPasswordChange(){
 
  <div class="auth">
 
-  <h2>Yangi parol</h2>
+  <button
+   class="alt back"
+   onclick="renderHome()">
+   ← Orqaga
+  </button>
 
-  <p class="small">
-   Yangi parolingizni kiriting.
-  </p>
+  <h2>Yangi parol</h2>
 
   <input
    id="newPassword"
    type="password"
-   autocomplete="new-password"
    placeholder="Yangi parol">
 
   <button
@@ -2063,11 +1957,6 @@ function showPasswordChange(){
 
  </div>`;
 }
-
-
-/*
-  AUTH HOLATI
-*/
 
 sb.auth.onAuthStateChange(
  async(event,session)=>{
@@ -2084,108 +1973,24 @@ sb.auth.onAuthStateChange(
 
   if(!session){
 
-   if(!location.search){
-
+   if(!location.search)
     renderAuth();
-
-   }
 
    return;
   }
 
-  /*
-    Oddiy login muvaffaqiyatli bo‘lsa,
-    bosh sahifani ochamiz.
-  */
-
-  if(
-   event==="SIGNED_IN" &&
-   !location.search
-  ){
-
+  if(!location.search)
    renderHome();
-
-  }
-
  }
 );
 
-
-/*
-  SAYT ISHGA TUSHISHI
-*/
-
 (async()=>{
 
- try{
+ const handled=
+  await handleUrl();
 
-  /*
-    Avval URL orqali kelgan
-    public story / quote ni tekshiramiz.
-  */
-
-  const handled=
-   await handleUrl();
-
-  if(handled)
-   return;
-
-
-  /*
-    Recovery havolasi orqali kelgan
-    sessionni tekshiramiz.
-  */
-
-  const {
-   data:{
-    session
-   }
-  }=
-   await sb.auth.getSession();
-
-
-  if(session){
-
-   currentUser=session.user;
-
-   /*
-     Recovery URL orqali kelgan bo‘lsa,
-     parol oynasini ko‘rsatamiz.
-   */
-
-   const hasRecoveryHash=
-    location.hash.includes(
-     "access_token"
-    ) ||
-    location.hash.includes(
-     "refresh_token"
-    );
-
-   if(hasRecoveryHash){
-
-    showPasswordChange();
-
-    return;
-   }
-
-   renderHome();
-
-  }else{
-
-   renderAuth();
-
-  }
-
- }catch(error){
-
-  console.error(
-   "INIT ERROR:",
-   error
-  );
-
-  renderAuth();
-
- }
+ if(!handled)
+  await init();
 
 })();
 </script>
